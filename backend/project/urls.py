@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from bookshelf import views
+from django.views.decorators.csrf import csrf_exempt
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("api/book/", views.BookCreate.as_view()),
+    path("signup/", csrf_exempt(views.signup)),
 ]

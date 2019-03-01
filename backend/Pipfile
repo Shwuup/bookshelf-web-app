@@ -6,12 +6,15 @@ verify_ssl = true
 [packages]
 django = "*"
 djangorestframework = "*"
+coverage = "*"
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.7"
 
 [dev-packages]
 black = "*"
+pylint = "*"
 
 [pipenv]
 allow_prereleases = true

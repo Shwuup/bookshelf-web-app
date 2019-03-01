@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -8,9 +9,8 @@ class Book(models.Model):
     publisher = models.CharField(max_length=200)
     pub_date = models.DateTimeField("date published")
     book_cover_path = models.CharField(max_length=200)
+    isbn = models.CharField(max_length=200, primary_key=True)
 
     def __str__(self):
         return self.title
 
-    def was_published_recently(self):
-        return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
