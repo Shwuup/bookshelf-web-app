@@ -14,7 +14,9 @@ const WelcomePage = () => (
           {" "}
           Sign Up
         </Button>
-        <Button secondary>Log In</Button>
+        <Button as={Link} to="/login" secondary>
+          Log In
+        </Button>
       </div>
     </header>
   </div>

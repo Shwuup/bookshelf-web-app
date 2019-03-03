@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "bookshelf",
     "rest_framework",
     "corsheaders",
+    "rest_framework.authtoken",
 ]
 
 MIDDLEWARE = [
@@ -118,6 +119,5 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 # CORS permissions
-CORS_ORIGIN_WHITELIST = (
-    'localhost:3000',
-)
+CORS_ORIGIN_WHITELIST = ("localhost:3000",)
+

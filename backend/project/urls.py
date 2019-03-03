@@ -17,9 +17,10 @@ from django.contrib import admin
 from django.urls import path
 from bookshelf import views
 from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework.authtoken import views as rviews
 
 urlpatterns = [
     path("api/book/", views.BookCreate.as_view()),
     path("signup/", csrf_exempt(views.signup)),
+    path("api-token-auth/", rviews.obtain_auth_token),
 ]

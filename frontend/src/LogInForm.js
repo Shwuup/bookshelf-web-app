@@ -3,33 +3,28 @@ import { Button, Checkbox, Form } from "semantic-ui-react";
 import axios from "axios";
 
 class SignUpForm extends Component {
-  state = { user: "", password: "", email: "" };
+  state = { username: "", password: "" };
 
   handleSubmit = () =>
-    axios.post("http://127.0.0.1:8000/signup/", this.state).then(response => {
-      console.log(response);
-    });
+    axios
+      .post("http://127.0.0.1:8000/api-token-auth/", this.state)
+      .then(response => {
+        console.log(response);
+      });
 
   handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
   render() {
     return (
       <div>
-        <h2>Signup</h2>
+        <h2>Login</h2>
         <Form onSubmit={this.handleSubmit}>
-          <Form.Input
-            label="Email"
-            name="email"
-            placeholder="Email"
-            value={this.user}
-            onChange={this.handleChange}
-          />
           <Form.Group>
             <Form.Input
               label="Username"
-              name="user"
+              name="username"
               placeholder="Username"
-              value={this.user}
+              value={this.username}
               onChange={this.handleChange}
             />
             <Form.Input

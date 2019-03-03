@@ -1,4 +1,5 @@
-/.vscode
+*.sqlite3 
+.vscode
 #js
 # dependencies
 /frontend/node_modules
