@@ -1,6 +1,10 @@
 from django.shortcuts import render
 from bookshelf.models import Book, BookList
-from bookshelf.serializers import BookSerializer, BookListSerializer
+from bookshelf.serializers import (
+    BookSerializer,
+    BookListSerializer,
+    BookListSerializerFull,
+)
 from rest_framework import generics
 from django.http import HttpResponse
 from django.contrib.auth.models import User
@@ -34,7 +38,8 @@ class ViewAllBookLists(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        book_list = BookList.objects.get(owner=request.user)
-        serializer = BookListSerializer(book_list)
-        return JsonResponse(serializer.data)
+        book_list_queryset = BookList.objects.filter(owner=request.user)
+        serializer = BookListSerializerFull
+        book_lists = [serializer(i).data for i in book_list_queryset]
+        return JsonResponse(book_lists, safe=False)
 

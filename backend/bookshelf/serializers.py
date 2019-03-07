@@ -8,9 +8,14 @@ class BookSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class BookListSerializer(serializers.ModelSerializer):
+class BookListSerializerFull(serializers.ModelSerializer):
     class Meta:
         model = BookList
         exclude = ("owner", "id")
         depth = 1
 
+
+class BookListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookList
+        fields = "__all__"
