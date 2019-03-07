@@ -7,6 +7,9 @@ class SignUpForm extends Component {
 
   handleSubmit = () =>
     axios.post("http://127.0.0.1:8000/signup/", this.state).then(response => {
+      const token = "Token " + response["data"]["token"];
+      axios.defaults.headers.common["Authorization"] = token;
+      console.log(token);
       console.log(response);
     });
 

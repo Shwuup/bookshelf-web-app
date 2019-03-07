@@ -21,6 +21,8 @@ from rest_framework.authtoken import views as rviews
 
 urlpatterns = [
     path("api/book/", views.BookCreate.as_view()),
+    path("api/booklist/", views.BookListCreate.as_view()),
     path("signup/", csrf_exempt(views.signup)),
     path("api-token-auth/", rviews.obtain_auth_token),
+    path("user/booklist/", views.ViewAllBookLists.as_view()),
 ]
