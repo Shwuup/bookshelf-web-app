@@ -1,16 +1,16 @@
 import React, { Component } from "react";
-import { Button, Checkbox, Form } from "semantic-ui-react";
 import axios from "axios";
+import { Form } from "semantic-ui-react";
 
 class SignUpForm extends Component {
-  state = { user: "", password: "", email: "" };
+  constructor(props) {
+    super(props);
+    this.state = { user: "", password: "", email: "" };
+  }
 
   handleSubmit = () =>
     axios.post("http://127.0.0.1:8000/signup/", this.state).then(response => {
-      const token = "Token " + response["data"]["token"];
-      axios.defaults.headers.common["Authorization"] = token;
-      console.log(token);
-      console.log(response);
+      console.log("success!");
     });
 
   handleChange = (e, { name, value }) => this.setState({ [name]: value });
