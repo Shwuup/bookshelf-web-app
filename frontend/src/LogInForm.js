@@ -1,11 +1,25 @@
 import React, { Component } from "react";
 import { Message, Form } from "semantic-ui-react";
 import axios from "axios";
-
+import { Redirect } from "react-router";
 class LogInForm extends Component {
   constructor(props) {
     super(props);
-    this.state = { username: "", password: "", isValidLogin: true };
+    this.state = {
+      username: "",
+      password: "",
+      isValidLogin: true,
+      redirect: false
+    };
+  }
+
+  componentDidMount() {
+    const { cookies } = this.props;
+    const token = cookies.get("tokenAuth");
+
+    if (token) {
+      this.setState({ redirect: true });
+    }
   }
 
   handleSubmit = () =>
@@ -13,8 +27,9 @@ class LogInForm extends Component {
       .post("http://127.0.0.1:8000/api-token-auth/", this.state)
       .then(response => {
         const token = "Token " + response["data"]["token"];
-        axios.defaults.headers.common["Authorization"] = token;
-        console.log(response);
+        const { cookies } = this.props;
+        cookies.set("tokenAuth", token, { path: "/" });
+        this.setState({ redirect: true });
       })
       .catch(error => {
         console.log(error.response.status);
@@ -24,6 +39,10 @@ class LogInForm extends Component {
   handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
   render() {
+    const { redirect, username, password, isValidLogin } = this.state;
+    if (redirect) {
+      return <Redirect to="/user/booklists" />;
+    }
     return (
       <div>
         <h2>Login</h2>
@@ -33,7 +52,7 @@ class LogInForm extends Component {
               label="Username"
               name="username"
               placeholder="Username"
-              value={this.username}
+              value={username}
               onChange={this.handleChange}
             />
             <Form.Input
@@ -41,11 +60,11 @@ class LogInForm extends Component {
               name="password"
               type="password"
               placeholder="Password"
-              value={this.password}
+              value={password}
               onChange={this.handleChange}
             />
           </Form.Group>
-          {this.state.isValidLogin ? null : (
+          {isValidLogin ? null : (
             <Message
               error
               header="Invalid login credentials"
