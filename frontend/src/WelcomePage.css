@@ -1,4 +1,4 @@
-.App {
+.Welcome {
   text-align: center;
 }
 
@@ -6,7 +6,7 @@ h1 {
   font-size: 100px;
 }
 
-.App-header {
+.Welcome-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;

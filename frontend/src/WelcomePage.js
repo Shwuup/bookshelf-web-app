@@ -1,10 +1,11 @@
 import React from "react";
 import { Button } from "semantic-ui-react";
 import { Link } from "react-router-dom";
+import "./WelcomePage.css";
 
 const WelcomePage = () => (
-  <div className="App">
-    <header className="App-header">
+  <div className="Welcome">
+    <header className="Welcome-header">
       <div>
         <h1>bookshelf.</h1>
       </div>
