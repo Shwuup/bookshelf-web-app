@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import SignUpForm from "./SignUpForm";
 import WelcomePage from "./WelcomePage";
 import LogInForm from "./LogInForm";
-import BookLists from "./BookLists";
+import UserPage from "./UserPage";
 import BookList from "./BookList";
 import { Route } from "react-router-dom";
 import { withCookies } from "react-cookie";
@@ -19,8 +19,8 @@ class App extends Component {
           render={() => <LogInForm cookies={this.props.cookies} />}
         />
         <Route
-          path="/user/booklists"
-          render={() => <BookLists cookies={this.props.cookies} />}
+          path="/user"
+          render={() => <UserPage cookies={this.props.cookies} />}
         />
         <Route path="/user/booklists/:id" component={BookList} />
       </div>

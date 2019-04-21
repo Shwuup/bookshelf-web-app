@@ -16,7 +16,6 @@ class LogInForm extends Component {
   componentDidMount() {
     const { cookies } = this.props;
     const token = cookies.get("tokenAuth");
-
     if (token) {
       this.setState({ redirect: true });
     }
@@ -28,7 +27,7 @@ class LogInForm extends Component {
       .then(response => {
         const token = "Token " + response["data"]["token"];
         const { cookies } = this.props;
-        cookies.set("tokenAuth", token, { path: "/" });
+        cookies.set("tokenAuth", token, { path: "/", httpOnly: true });
         this.setState({ redirect: true });
       })
       .catch(error => {
