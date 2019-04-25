@@ -22,7 +22,7 @@ class App extends Component {
           path="/user"
           render={() => <UserPage cookies={this.props.cookies} />}
         />
-        <Route path="/user/booklists/:id" component={BookList} />
+        <Route path="/user/booklist/:id" component={BookList} />
       </div>
     );
   }

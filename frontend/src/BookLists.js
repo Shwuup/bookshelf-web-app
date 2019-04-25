@@ -16,10 +16,15 @@ class BookLists extends React.Component {
     return (
       <Fragment>
         <h2>Book Lists</h2>
-        {bookShelves.map(bookList => (
+        {bookShelves.map((bookList, i) => (
           <ul>
             <li>
-              <Link to={"/user/booklist/" + bookList.name}>
+              <Link
+                to={{
+                  pathname: "/user/booklist/" + bookList.name,
+                  state: { bookShelf: bookShelves[i] }
+                }}
+              >
                 {bookList.name}
               </Link>
             </li>
