@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Message, Form } from "semantic-ui-react";
+import { Message, Form, Segment, Button, Grid } from "semantic-ui-react";
 import axios from "axios";
 import { Redirect } from "react-router";
+import "./LogInForm.css";
 class LogInForm extends Component {
   constructor(props) {
     super(props);
@@ -43,36 +44,45 @@ class LogInForm extends Component {
       return <Redirect to="/user/booklists" />;
     }
     return (
-      <div>
-        <h2>Login</h2>
-        <Form error onSubmit={this.handleSubmit}>
-          <Form.Group>
-            <Form.Input
-              label="Username"
-              name="username"
-              placeholder="Username"
-              value={username}
-              onChange={this.handleChange}
-            />
-            <Form.Input
-              label="Password"
-              name="password"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={this.handleChange}
-            />
-          </Form.Group>
-          {isValidLogin ? null : (
-            <Message
-              error
-              header="Invalid login credentials"
-              content="Please try again."
-            />
-          )}
-          <Form.Button content="Submit" />
-        </Form>
-      </div>
+      <Grid
+        textAlign="center"
+        style={{ height: "100vh" }}
+        verticalAlign="middle"
+      >
+        <Grid.Column style={{ maxWidth: 450 }}>
+          <h2>Sign in to your account</h2>
+          <Segment className="groupings">
+            <Form error onSubmit={this.handleSubmit}>
+              <Form.Input
+                label={<label style={{ textAlign: "left" }}>Username</label>}
+                name="username"
+                placeholder="Username"
+                value={username}
+                onChange={this.handleChange}
+              />
+              <Form.Input
+                label={<label style={{ textAlign: "left" }}>Password</label>}
+                name="password"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={this.handleChange}
+              />
+
+              {isValidLogin ? null : (
+                <Message
+                  error
+                  header="Invalid login credentials"
+                  content="Please try again."
+                />
+              )}
+              <Button primary fluid size="large" type="submit">
+                LOGIN
+              </Button>
+            </Form>
+          </Segment>
+        </Grid.Column>
+      </Grid>
     );
   }
 }
