@@ -33,6 +33,16 @@ def signup(request):
     return HttpResponse("Account made!")
 
 
+def handle_search(request):
+    print(request.GET.get("query"))
+    term = request.GET.get("query")
+    books = Book.objects.all()
+    filtered_books = books.filter(title__contains=term)
+    serializer = BookSerializer(filtered_books, many=True)
+    book_j = serializer.data
+    return JsonResponse(book_j, safe=False)
+
+
 class ViewAllBookLists(APIView):
     authentication_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)

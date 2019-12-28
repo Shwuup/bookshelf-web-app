@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { Fragment } from "react";
 import BookLists from "./BookLists";
+import "./UserPage.css";
+import SearchBar from "./SearchBar";
 
 class UserPage extends React.Component {
   constructor(props) {
@@ -36,7 +38,7 @@ class UserPage extends React.Component {
     return (
       <Fragment>
         <h1>bookshelf.</h1>
-
+        <SearchBar />
         <BookLists bookNameList={this.state.bookShelves} />
       </Fragment>
     );

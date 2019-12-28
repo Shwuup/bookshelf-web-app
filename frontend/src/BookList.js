@@ -1,4 +1,5 @@
 import React, { Fragment } from "react";
+import { Button } from "semantic-ui-react";
 class BookList extends React.Component {
   constructor(props) {
     super(props);
@@ -13,11 +14,15 @@ class BookList extends React.Component {
     return (
       <Fragment>
         <h2>Book List: {bookShelf.name}</h2>
+        <div>
+          <Button>Add Book</Button>
+        </div>
         {bookShelf.books.map(book => (
-          <ul>
-            <li>{book.title}</li>
+          <div>
+            <p>{book.title}</p>
+            <p>{book.author}</p>
             <img src={book.book_cover_path} />
-          </ul>
+          </div>
         ))}
       </Fragment>
     );

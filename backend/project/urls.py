@@ -25,4 +25,5 @@ urlpatterns = [
     path("signup/", csrf_exempt(views.signup)),
     path("api-token-auth/", rviews.obtain_auth_token),
     path("api/user/booklist/", views.ViewAllBookLists.as_view()),
+    path("search/", views.handle_search),
 ]
