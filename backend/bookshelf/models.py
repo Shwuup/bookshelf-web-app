@@ -14,15 +14,26 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
+class Author(models.Model):
+    author_id = models.AutoField(primary_key=True)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+
 class Book(models.Model):
-    isbn = models.CharField(max_length=200, primary_key=True)
+    book_id = models.AutoField(primary_key=True)
+    isbn = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
-    author = models.CharField(max_length=200)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     publisher = models.CharField(max_length=200)
     pub_date = models.DateField("date published")
     pages = models.PositiveIntegerField()
     language = models.CharField(max_length=200, default="")
-    book_cover_path = models.CharField(max_length=200, default="")
+    image = models.CharField(max_length=200, default="")
+    edition = models.PositiveIntegerField()
 
     def __str__(self):
         return self.title
