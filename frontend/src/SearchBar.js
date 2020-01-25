@@ -11,11 +11,24 @@ class SearchBar extends React.Component {
   }
 
   fetchBooks = value => {
-    axios.get("http://127.0.0.1:8000/search/?query=" + value).then(response => {
-      this.setState({
-        results: response.data,
-        isLoading: false
-      });
+    if (value.length < 1) {
+      this.setState({ isLoading: false });
+      return;
+    } else {
+      axios
+        .get("http://127.0.0.1:8000/search/?query=" + value)
+        .then(response => {
+          this.setState({
+            results: response.data,
+            isLoading: false
+          });
+        });
+    }
+  };
+
+  eraseValueComp = () => {
+    this.setState({
+      value: ""
     });
   };
 
@@ -29,7 +42,10 @@ class SearchBar extends React.Component {
     const { isLoading, value, results } = this.state;
     return (
       <Search
+        style={this.props.style}
         onSearchChange={this.handleSearchChange}
+        onResultSelect={this.props.onResultSelect}
+        onMouseDown={this.eraseValueComp}
         value={value}
         results={results}
         loading={isLoading}
