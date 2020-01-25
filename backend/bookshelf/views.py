@@ -1,18 +1,28 @@
 from django.shortcuts import render
-from bookshelf.models import Book, BookList
+from bookshelf.models import Book, BookList, Author
 from bookshelf.serializers import (
     BookSerializer,
     BookListSerializer,
     BookListSerializerFull,
+    AuthorSerializer,
 )
 from rest_framework import generics
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 import json
+
 from rest_framework import authentication, permissions
-from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view
+
+
+class AuthorCreate(generics.ListCreateAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
 
 
 class BookCreate(generics.ListCreateAPIView):
@@ -33,14 +43,35 @@ def signup(request):
     return HttpResponse("Account made!")
 
 
+@csrf_exempt
+@api_view(["POST"])
+def add_new_booklist(request):
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (authentication.TokenAuthentication,)
+    user = request.user
+
+    body_unicode = request.body.decode("utf-8")
+    body = json.loads(body_unicode)
+    bookInfo = body["data"]
+    bookListName = body["bookListName"]
+    book_ids = [bookInfo[k]["book_id"] for k in bookInfo]
+    bookList = BookList(name=bookListName, owner=user)
+    bookList.save()
+    for ids in book_ids:
+        obj = Book.objects.get(book_id=ids)
+        bookList.books.add(obj)
+
+    return HttpResponse("Completed successfully!")
+
+
 def handle_search(request):
-    print(request.GET.get("query"))
     term = request.GET.get("query")
     books = Book.objects.all()
     filtered_books = books.filter(title__contains=term)
     serializer = BookSerializer(filtered_books, many=True)
-    book_j = serializer.data
-    return JsonResponse(book_j, safe=False)
+    response_payload = serializer.data
+    return JsonResponse(response_payload, safe=False)
 
 
 class ViewAllBookLists(APIView):

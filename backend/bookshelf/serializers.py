@@ -18,7 +18,7 @@ class BookListSerializerFull(serializers.ModelSerializer):
     class Meta:
         model = BookList
         exclude = ("owner", "id")
-        depth = 1
+        depth = 2
 
 
 class BookListSerializer(serializers.ModelSerializer):

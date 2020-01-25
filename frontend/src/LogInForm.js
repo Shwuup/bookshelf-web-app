@@ -22,21 +22,22 @@ class LogInForm extends Component {
     }
   }
 
-  handleSubmit = () =>
+  handleSubmit = () => {
     axios
       .post("http://127.0.0.1:8000/api-token-auth/", this.state)
       .then(response => {
         const token = "Token " + response["data"]["token"];
         const { cookies } = this.props;
-        cookies.set("tokenAuth", token, { path: "/", httpOnly: true });
+        cookies.set("tokenAuth", token, { path: "/" });
         this.setState({ redirect: true });
       })
       .catch(error => {
         console.log(error.response.status);
         this.setState({ isValidLogin: false });
       });
+  };
 
-  handleChange = (e, { name, value }) => this.setState({ [name]: value });
+  handleChange = (_, { name, value }) => this.setState({ [name]: value });
 
   render() {
     const { redirect, username, password, isValidLogin } = this.state;

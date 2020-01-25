@@ -3,6 +3,8 @@ import React, { Fragment } from "react";
 import BookLists from "./BookLists";
 import "./UserPage.css";
 import SearchBar from "./SearchBar";
+import { Dimmer, Button } from "semantic-ui-react";
+import { Link } from "react-router-dom";
 
 class UserPage extends React.Component {
   constructor(props) {
@@ -17,6 +19,7 @@ class UserPage extends React.Component {
   componentDidMount() {
     const { cookies } = this.props;
     const token = cookies.get("tokenAuth");
+
     axios
       .get("http://127.0.0.1:8000/api/user/booklist/", {
         headers: {
@@ -40,6 +43,9 @@ class UserPage extends React.Component {
         <h1>bookshelf.</h1>
         <SearchBar />
         <BookLists bookNameList={this.state.bookShelves} />
+        <Button as={Link} to="/add" primary>
+          Add Book List
+        </Button>
       </Fragment>
     );
   }
