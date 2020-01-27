@@ -12,18 +12,15 @@ class BookList extends React.Component {
   }
 
   render() {
-    const { bookShelf } = this.props.location.state;
+    const { bookList } = this.props;
     return (
       <Fragment>
-        <h2>Book List: {bookShelf.name}</h2>
-        <div>
-          <Button>Add Book</Button>
-        </div>
-        {bookShelf.books.map(book => (
+        <h2>Book List: {bookList.name}</h2>
+        {bookList.books.map(book => (
           <div>
+            <img src={book.image} />
             <p>{book.title}</p>
             <p>{`${book.author.first_name} ${book.author.last_name}`}</p>
-            <img src={book.image} />
           </div>
         ))}
       </Fragment>
