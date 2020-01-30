@@ -1,6 +1,6 @@
 import axios from "axios";
-import React, { Fragment } from "react";
-import { Dimmer, Button, Form, Segment, Grid } from "semantic-ui-react";
+import React from "react";
+import { Button, Form, Segment, Grid } from "semantic-ui-react";
 import SearchBar from "./SearchBar";
 import { withRouter } from "react-router-dom";
 

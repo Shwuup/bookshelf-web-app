@@ -1,9 +1,7 @@
 import axios from "axios";
-import React, { Fragment } from "react";
-import BookLists from "./BookLists";
+import React from "react";
 import "./UserPage.css";
-import SearchBar from "./SearchBar";
-import { Dimmer, Button, Dropdown, Radio } from "semantic-ui-react";
+import { Container, Button, Dropdown } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { find } from "lodash";
 import BookList from "./BookList";
@@ -60,9 +58,8 @@ class UserPage extends React.Component {
     const bookList = find(this.state.bookShelves, { name: this.state.value });
 
     return (
-      <Fragment>
+      <Container>
         <h1>bookshelf.</h1>
-
         <Dropdown
           selection
           value={this.state.value}
@@ -73,7 +70,7 @@ class UserPage extends React.Component {
           Add Book List
         </Button>
         {this.state.isLoaded && <BookList bookList={bookList} />}
-      </Fragment>
+      </Container>
     );
   }
 }

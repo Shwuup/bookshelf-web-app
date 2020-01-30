@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Button } from "semantic-ui-react";
+import { Card, Image } from "semantic-ui-react";
 import "./BookList.css";
 
 class BookList extends React.Component {
@@ -16,13 +16,17 @@ class BookList extends React.Component {
     return (
       <Fragment>
         <h2>Book List: {bookList.name}</h2>
-        {bookList.books.map(book => (
-          <div>
-            <img src={book.image} />
-            <p>{book.title}</p>
-            <p>{`${book.author.first_name} ${book.author.last_name}`}</p>
-          </div>
-        ))}
+        <Card.Group>
+          {bookList.books.map(book => (
+            <Card>
+              <Image src={book.image}></Image>
+              <Card.Content>
+                <Card.Header>{book.title}</Card.Header>
+                <Card.Meta>{`${book.author.first_name} ${book.author.last_name}`}</Card.Meta>
+              </Card.Content>
+            </Card>
+          ))}
+        </Card.Group>
       </Fragment>
     );
   }
