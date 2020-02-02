@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from bookshelf.models import Book, BookList, Author
+from bookshelf.models import Book, BookList, Author, Publisher, BookInfo
 from bookshelf.serializers import (
     BookSerializer,
     BookListSerializer,
     BookListSerializerFull,
+    PublisherSerializer,
     AuthorSerializer,
 )
 from rest_framework import generics
@@ -28,6 +29,11 @@ class AuthorCreate(generics.ListCreateAPIView):
 class BookCreate(generics.ListCreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+
+
+class PublisherCreate(generics.ListCreateAPIView):
+    queryset = Publisher.objects.all()
+    serializer_class = PublisherSerializer
 
 
 class BookListCreate(generics.ListCreateAPIView):
@@ -60,7 +66,9 @@ def add_new_booklist(request):
     bookList.save()
     for ids in book_ids:
         obj = Book.objects.get(book_id=ids)
-        bookList.books.add(obj)
+        bookInfoObj = BookInfo(book=obj)
+        bookInfoObj.save()
+        bookList.book_infos.add(bookInfoObj)
 
     return HttpResponse("Completed successfully!")
 

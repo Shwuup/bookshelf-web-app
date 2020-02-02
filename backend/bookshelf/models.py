@@ -23,12 +23,20 @@ class Author(models.Model):
         return "{} {}".format(self.first_name, self.last_name)
 
 
+class Publisher(models.Model):
+    publisher_id = models.AutoField(primary_key=True)
+    publisher_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.publisher_name
+
+
 class Book(models.Model):
     book_id = models.AutoField(primary_key=True)
     isbn = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    publisher = models.CharField(max_length=200)
+    publisher = models.ForeignKey(Publisher, null=True, on_delete=models.CASCADE)
     pub_date = models.DateField("date published")
     pages = models.PositiveIntegerField()
     language = models.CharField(max_length=200, default="")
@@ -39,10 +47,21 @@ class Book(models.Model):
         return self.title
 
 
+class BookInfo(models.Model):
+    book_info_id = models.AutoField(primary_key=True)
+    is_read = models.BooleanField(default=False)
+    dateFinishedReading = models.DateField(blank=True, null=True)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "Book: {} isRead: {}".format(self.book, self.is_read)
+
+
 class BookList(models.Model):
     name = models.CharField(max_length=200)
     date_created = models.DateField(auto_now_add=True)
     books = models.ManyToManyField(Book)
+    book_infos = models.ManyToManyField(BookInfo)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):

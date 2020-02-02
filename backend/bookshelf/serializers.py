@@ -1,10 +1,16 @@
 from rest_framework import serializers
-from bookshelf.models import Book, BookList, Author
+from bookshelf.models import Book, BookList, Author, Publisher
 
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
+        fields = "__all__"
+
+
+class PublisherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Publisher
         fields = "__all__"
 
 
@@ -18,7 +24,7 @@ class BookListSerializerFull(serializers.ModelSerializer):
     class Meta:
         model = BookList
         exclude = ("owner", "id")
-        depth = 2
+        depth = 3
 
 
 class BookListSerializer(serializers.ModelSerializer):
