@@ -47,23 +47,24 @@ class Book(models.Model):
         return self.title
 
 
-class BookInfo(models.Model):
-    book_info_id = models.AutoField(primary_key=True)
-    is_read = models.BooleanField(default=False)
-    dateFinishedReading = models.DateField(blank=True, null=True)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "Book: {} isRead: {}".format(self.book, self.is_read)
-
-
 class BookList(models.Model):
     name = models.CharField(max_length=200)
     date_created = models.DateField(auto_now_add=True)
-    books = models.ManyToManyField(Book)
-    book_infos = models.ManyToManyField(BookInfo)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
+
+
+class BookInfo(models.Model):
+    book_info_id = models.AutoField(primary_key=True)
+    is_read = models.BooleanField(default=False)
+    date_finished_reading = models.DateField(blank=True, null=True)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book_list = models.ForeignKey(
+        BookList, on_delete=models.CASCADE, related_name="book_infos"
+    )
+
+    def __str__(self):
+        return "Book: {} isRead: {}".format(self.book, self.is_read)
 

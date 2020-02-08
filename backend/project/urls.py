@@ -29,4 +29,8 @@ urlpatterns = [
     path("api-token-auth/", rviews.obtain_auth_token),
     path("search/", views.handle_search),
     path("create-book-list", views.add_new_booklist),
+    path("delete-book-list", views.delete_booklist),
+    path("delete-book", views.delete_book),
+    path("add-book-to-read", views.add_book_to_read),
+    path("add-new-book", views.add_new_book),
 ]

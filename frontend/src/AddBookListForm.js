@@ -41,10 +41,11 @@ class AddBookListForm extends React.Component {
       });
   };
 
-  onResultSelect = (e, data) => {
-    console.log(data.result);
-    var newBookList = { ...this.state.newBookList };
-    newBookList[data.result.title] = data.result;
+  onResultSelect = (_, data) => {
+    const bookName = data.result.title;
+    const bookInfo = data.result;
+    let newBookList = { ...this.state.newBookList };
+    newBookList[bookName] = bookInfo;
     this.setState({ newBookList });
     data.onMouseDown();
   };
