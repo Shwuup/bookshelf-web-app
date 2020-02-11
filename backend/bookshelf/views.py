@@ -6,9 +6,10 @@ from bookshelf.serializers import (
     BookListSerializerFull,
     PublisherSerializer,
     AuthorSerializer,
+    BookInfoSerializer,
 )
 from rest_framework import generics
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 import json
 from rest_framework import authentication, permissions
@@ -81,10 +82,11 @@ def add_new_book(request):
     book_id = body["bookId"]
     new_book = Book.objects.get(book_id=book_id)
     book_list = BookList.objects.get(id=book_list_id)
-    bookInfo = BookInfo(book=new_book, book_list=book_list)
-    bookInfo.save()
-
-    return HttpResponse("Added successfully")
+    book_info = BookInfo(book=new_book, book_list=book_list)
+    book_info.save()
+    serializer = BookInfoSerializer(book_info)
+    return JsonResponse(serializer.data)
+    # return HttpResponse("Added successfully")
 
 
 @api_view(["PUT"])
