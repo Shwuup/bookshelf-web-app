@@ -1,7 +1,13 @@
 import axios from "axios";
 import React from "react";
 import "./UserPage.css";
-import { Container, Button, Dropdown } from "semantic-ui-react";
+import {
+  Container,
+  Button,
+  Dropdown,
+  Message,
+  Segment
+} from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { find } from "lodash";
 import BookList from "./BookList";
@@ -18,7 +24,8 @@ class UserPage extends React.Component {
       isLoaded: false,
       isResponseEmpty: true,
       value: "",
-      readStatus: "unread"
+      readStatus: "unread",
+      bookAlreadyInBookList: false
     };
   }
 
@@ -57,6 +64,7 @@ class UserPage extends React.Component {
     this.setState({ value: data.value });
   };
   handleChange = (_, { value }) => {
+    console.log(value);
     this.setState({ readStatus: value });
   };
   updateBookList = currentBookList => {
@@ -94,28 +102,32 @@ class UserPage extends React.Component {
     let bookList = this.getCurrentBookList();
     const bookListId = bookList.id;
     const newBook = data.result;
-    const newBookInfo = {
-      book_list: "#",
-      book_info_id: "#",
-      book: newBook,
-      date_finished_reading: null,
-      is_read: false
-    };
-    bookList.book_infos.push(newBookInfo);
-    this.updateBookList(bookList);
-
-    const { cookies } = this.props;
-    const token = cookies.get("tokenAuth");
-    axios.post(
-      "http://127.0.0.1:8000/add-new-book",
-      { bookListId: bookListId, bookId: newBook.book_id },
-      {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json"
-        }
-      }
+    const isAlreadyInBookList = bookList.book_infos.find(
+      book_info => book_info.book.book_id === newBook.book_id
     );
+    if (isAlreadyInBookList) {
+      this.setState({ bookAlreadyInBookList: true });
+      setTimeout(() => this.setState({ bookAlreadyInBookList: false }), 3000);
+    } else {
+      const { cookies } = this.props;
+      const token = cookies.get("tokenAuth");
+      axios
+        .post(
+          "http://127.0.0.1:8000/add-new-book",
+          { bookListId: bookListId, bookId: newBook.book_id },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json"
+            }
+          }
+        )
+        .then(response => {
+          const bookInfo = response.data;
+          bookList.book_infos.push(bookInfo);
+          this.updateBookList(bookList);
+        });
+    }
   };
 
   onDeleteBookList = () => {
@@ -139,11 +151,12 @@ class UserPage extends React.Component {
   };
 
   onDeleteBook = (_, data) => {
-    const bookInfoId = data.value;
+    const bookInfoId = data.value.bookInfoId;
+    const bookId = data.value.bookId;
     const currentBookList = this.getCurrentBookList();
     const bookListId = currentBookList.id;
     const newBookInfoList = currentBookList.book_infos.filter(
-      book_info => book_info.book_info_id !== bookInfoId
+      book_info => book_info.book.book_id !== bookId
     );
     currentBookList.book_infos = newBookInfoList;
     this.updateBookList(currentBookList);
@@ -171,32 +184,47 @@ class UserPage extends React.Component {
     return (
       <Container>
         <h1>bookshelf.</h1>
-        <RadioButtons
-          newReadStatus={this.state.readStatus}
-          handleChange={this.handleChange}
-        />
+        <Segment>
+          <div className="dropdown">
+            <Dropdown
+              className={"d"}
+              selection
+              value={this.state.value}
+              options={options}
+              onChange={this.onChange}
+            />
+            <Button as={Link} to="/add" primary>
+              Add Book List
+            </Button>
+            <Button onClick={this.onDeleteBookList}>Delete Book List</Button>
+          </div>
 
-        <Dropdown
-          selection
-          value={this.state.value}
-          options={options}
-          onChange={this.onChange}
-        />
-        <SearchBar onResultSelect={this.onSearchResultSelect} />
-        <Button as={Link} to="/add" primary>
-          Add Book List
-        </Button>
-        <Button onClick={this.onDeleteBookList}>Delete Book List</Button>
+          <div className="search">
+            <SearchBar onResultSelect={this.onSearchResultSelect} />
+          </div>
+          {this.state.bookAlreadyInBookList && (
+            <Message negative floating>
+              You've already added that book to this book list
+            </Message>
+          )}
+        </Segment>
+
         {this.state.isResponseEmpty && <h2>No Book Lists have been added</h2>}
 
-        {this.state.isLoaded && !this.state.isResponseEmpty && (
-          <BookList
-            onDelete={this.onDeleteBook}
-            readStatus={this.state.readStatus}
-            bookList={bookList}
-            addToRead={this.addToRead}
+        <Segment>
+          <RadioButtons
+            newReadStatus={this.state.readStatus}
+            handleChange={this.handleChange}
           />
-        )}
+          {this.state.isLoaded && !this.state.isResponseEmpty && (
+            <BookList
+              onDelete={this.onDeleteBook}
+              readStatus={this.state.readStatus}
+              bookList={bookList}
+              addToRead={this.addToRead}
+            />
+          )}
+        </Segment>
       </Container>
     );
   }

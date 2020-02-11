@@ -11,7 +11,7 @@ const BookList = props => {
       <Card.Group stackable>
         {bookList.book_infos
           .filter(book_info =>
-            readStatus === "unread" ? !book_info.is_read : book_info.is_read
+            readStatus === "read" ? book_info.is_read : !book_info.is_read
           )
           .map(book_info => (
             <Card key={book_info.book.book_id}>
@@ -23,14 +23,23 @@ const BookList = props => {
                   <Card.Content>{`Finished reading: ${book_info.date_finished_reading}`}</Card.Content>
                 )}
               </Card.Content>
+              {readStatus === "unread" && (
+                <Button
+                  value={book_info.book_info_id}
+                  primary
+                  onClick={props.addToRead}
+                >
+                  Add to read
+                </Button>
+              )}
+
               <Button
-                value={book_info.book_info_id}
-                primary
-                onClick={props.addToRead}
+                value={{
+                  bookInfoId: book_info.book_info_id,
+                  bookId: book_info.book.book_id
+                }}
+                onClick={props.onDelete}
               >
-                Add to read
-              </Button>
-              <Button value={book_info.book_info_id} onClick={props.onDelete}>
                 Delete
               </Button>
             </Card>

@@ -1,3 +1,15 @@
 .card.ui.card {
   width: 168px;
 }
+
+.search {
+  margin-top: 0.8em;
+}
+
+.d {
+  margin-right: 0.3em;
+}
+h1 {
+  font-size: 70px;
+  margin-bottom: -0.1em;
+}

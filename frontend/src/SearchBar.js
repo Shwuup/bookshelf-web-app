@@ -41,15 +41,18 @@ class SearchBar extends React.Component {
   render() {
     const { isLoading, value, results } = this.state;
     return (
-      <Search
-        style={this.props.style}
-        onSearchChange={this.handleSearchChange}
-        onResultSelect={this.props.onResultSelect}
-        onMouseDown={this.eraseValueComp}
-        value={value}
-        results={results}
-        loading={isLoading}
-      />
+      <div>
+        <Search
+          style={this.props.style}
+          onSearchChange={this.handleSearchChange}
+          onResultSelect={this.props.onResultSelect}
+          onMouseDown={this.eraseValueComp}
+          value={value}
+          results={results}
+          loading={isLoading}
+          placeholder={"Search books"}
+        />
+      </div>
     );
   }
 }
