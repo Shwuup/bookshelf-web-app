@@ -1,36 +1,24 @@
 import axios from "axios";
 import React from "react";
 import "./UserPage.css";
-import {
-  Container,
-  Button,
-  Dropdown,
-  Message,
-  Segment
-} from "semantic-ui-react";
-import { Link } from "react-router-dom";
-import { find } from "lodash";
-import BookList from "./BookList";
+import { Container, Message, Segment, Dropdown } from "semantic-ui-react";
+import BookShelf from "./BookShelf";
 import RadioButtons from "./RadioButtons";
 import SearchBar from "./SearchBar";
 import moment from "moment";
+import { find } from "lodash";
 class UserPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       error: null,
-      bookShelves: [],
-      bookLists: [],
+      bookShelf: [],
       isLoaded: false,
       isResponseEmpty: true,
-      value: "",
       readStatus: "unread",
-      bookAlreadyInBookList: false
+      bookAlreadyInBookShelf: false,
+      filteredBookShelf: []
     };
-  }
-
-  getBookListNames(bookList) {
-    return bookList.name;
   }
 
   componentDidMount() {
@@ -38,21 +26,18 @@ class UserPage extends React.Component {
     const token = cookies.get("tokenAuth");
 
     axios
-      .get("http://127.0.0.1:8000/api/user/booklist/", {
+      .get("http://127.0.0.1:8000/books/", {
         headers: {
           Authorization: token
         }
       })
       .then(response => {
         const isEmpty = response.data.length === 0;
-        const bookListNames = response.data.map(this.getBookListNames);
-
         this.setState({
-          bookShelves: response.data,
+          bookShelf: response.data,
           isLoaded: true,
           isResponseEmpty: isEmpty,
-          bookLists: bookListNames,
-          value: bookListNames[0]
+          filteredBookShelf: response.data
         });
       })
       .catch(error => {
@@ -60,61 +45,49 @@ class UserPage extends React.Component {
       });
   }
 
-  onChange = (_, data) => {
-    this.setState({ value: data.value });
-  };
   handleChange = (_, { value }) => {
-    console.log(value);
     this.setState({ readStatus: value });
-  };
-  updateBookList = currentBookList => {
-    const bookListId = currentBookList.id;
-    const bookListIndex = this.state.bookShelves.find(x => x.id === bookListId);
-    const currentBookShelf = this.state.bookShelves;
-    currentBookShelf[bookListIndex] = currentBookList;
-    this.setState({ bookShelves: currentBookShelf });
   };
 
   addToRead = (_, data) => {
     const bookInfoId = data.value;
     const date = moment().format("DD/MM/YYYY");
-    const currentBookList = this.getCurrentBookList();
-    const bookInfoIndex = currentBookList.book_infos.findIndex(
+    const currentBookShelf = this.state.bookShelf;
+    const bookInfoIndex = currentBookShelf.findIndex(
       book_info => book_info.book_info_id === bookInfoId
     );
-    const bookInfo = currentBookList.book_infos[bookInfoIndex];
+    const bookInfo = currentBookShelf[bookInfoIndex];
     bookInfo.date_finished_reading = date;
     bookInfo.is_read = true;
 
-    this.updateBookList(currentBookList);
-
     const { cookies } = this.props;
     const token = cookies.get("tokenAuth");
-    axios.put("http://127.0.0.1:8000/add-book-to-read", {
+    fetch(`http://127.0.0.1:8000/books/${bookInfoId}/`, {
+      method: "PATCH",
       headers: {
-        Authorization: token
+        Authorization: token,
+        "Content-Type": "application/json"
       },
-      data: { bookInfoId: bookInfoId }
-    });
+      body: JSON.stringify({ dateAdded: date })
+    }).then(() => this.setState({ bookShelf: currentBookShelf }));
   };
 
   onSearchResultSelect = (_, data) => {
-    let bookList = this.getCurrentBookList();
-    const bookListId = bookList.id;
+    let bookShelf = this.state.bookShelf;
     const newBook = data.result;
-    const isAlreadyInBookList = bookList.book_infos.find(
+    const isAlreadyInBookShelf = bookShelf.find(
       book_info => book_info.book.book_id === newBook.book_id
     );
-    if (isAlreadyInBookList) {
-      this.setState({ bookAlreadyInBookList: true });
-      setTimeout(() => this.setState({ bookAlreadyInBookList: false }), 3000);
+    if (isAlreadyInBookShelf) {
+      this.setState({ bookAlreadyInBookShelf: true });
+      setTimeout(() => this.setState({ bookAlreadyInBookShelf: false }), 3000);
     } else {
       const { cookies } = this.props;
       const token = cookies.get("tokenAuth");
       axios
         .post(
-          "http://127.0.0.1:8000/add-new-book",
-          { bookListId: bookListId, bookId: newBook.book_id },
+          "http://127.0.0.1:8000/books/",
+          { bookId: newBook.book_id },
           {
             headers: {
               Authorization: token,
@@ -124,103 +97,109 @@ class UserPage extends React.Component {
         )
         .then(response => {
           const bookInfo = response.data;
-          bookList.book_infos.push(bookInfo);
-          this.updateBookList(bookList);
+          bookShelf.push(bookInfo);
+          this.setState({ bookShelf: bookShelf });
         });
     }
-  };
-
-  onDeleteBookList = () => {
-    let newBookLists = this.state.bookLists.filter(
-      name => name !== this.state.value
-    );
-    const id = this.getCurrentBookList().id;
-    this.setState({
-      bookLists: newBookLists,
-      value: newBookLists[0]
-    });
-
-    const { cookies } = this.props;
-    const token = cookies.get("tokenAuth");
-    axios.delete("http://127.0.0.1:8000/delete-book-list", {
-      headers: {
-        Authorization: token
-      },
-      data: { id: id }
-    });
   };
 
   onDeleteBook = (_, data) => {
     const bookInfoId = data.value.bookInfoId;
     const bookId = data.value.bookId;
-    const currentBookList = this.getCurrentBookList();
-    const bookListId = currentBookList.id;
-    const newBookInfoList = currentBookList.book_infos.filter(
+    const currentBookShelf = this.state.bookShelf;
+    const newBookShelf = currentBookShelf.filter(
       book_info => book_info.book.book_id !== bookId
     );
-    currentBookList.book_infos = newBookInfoList;
-    this.updateBookList(currentBookList);
 
     const { cookies } = this.props;
     const token = cookies.get("tokenAuth");
-    axios.delete("http://127.0.0.1:8000/delete-book", {
-      headers: {
-        Authorization: token
-      },
-      data: { bookInfoId: bookInfoId, bookListId: bookListId }
-    });
+    axios
+      .delete(`http://127.0.0.1:8000/books/${bookInfoId}/`, {
+        headers: {
+          Authorization: token
+        }
+      })
+      .then(() => this.setState({ bookShelf: newBookShelf }));
   };
 
-  getCurrentBookList() {
-    return find(this.state.bookShelves, { name: this.state.value });
-  }
+  onDropDownChange = (_, data) => {
+    const genre = data.value;
+    let books = this.state.bookShelf;
+    this.setState({ filteredBookShelf: this.filterByGenre(books, genre) });
+  };
+
+  filterByGenre = (books, genre) => {
+    return genre === "Any"
+      ? this.state.bookShelf
+      : books.filter(bookInfo =>
+          find(bookInfo.book.genre, { genre_name: genre })
+        );
+  };
 
   render() {
-    const options = this.state.bookLists.map(bookListName => {
-      return { text: bookListName, key: bookListName, value: bookListName };
-    });
-    const bookList = this.getCurrentBookList();
+    const genreOptions = [
+      {
+        key: "Any",
+        value: "Any",
+        text: "Any",
+        label: { color: "black", empty: true, circular: true }
+      },
+      {
+        key: "Fiction",
+        value: "Fiction",
+        text: "Fiction",
+        label: { color: "red", empty: true, circular: true }
+      },
+      {
+        key: "Fantasy",
+        value: "Fantasy",
+        text: "Fantasy",
+        label: { color: "green", empty: true, circular: true }
+      },
+      {
+        key: "Nonfiction",
+        value: "Nonfiction",
+        text: "Nonfiction",
+        label: { color: "grey", empty: true, circular: true }
+      }
+    ];
 
     return (
       <Container>
         <h1>bookshelf.</h1>
+        <div className="search">
+          <SearchBar onResultSelect={this.onSearchResultSelect} />
+        </div>
+        <Dropdown
+          placeholder="Filter by genre"
+          selection
+          options={genreOptions}
+          onChange={this.onDropDownChange}
+        />
+
+        {this.state.bookAlreadyInBookShelf && (
+          <Message negative floating>
+            You've already added this book to your bookshelf
+          </Message>
+        )}
+
+        {this.state.isResponseEmpty && (
+          <h2>You currently don't have any books added</h2>
+        )}
+
         <Segment>
-          <div className="dropdown">
-            <Dropdown
-              className={"d"}
-              selection
-              value={this.state.value}
-              options={options}
-              onChange={this.onChange}
+          <div className="slider">
+            <RadioButtons
+              newReadStatus={this.state.readStatus}
+              handleChange={this.handleChange}
             />
-            <Button as={Link} to="/add" primary>
-              Add Book List
-            </Button>
-            <Button onClick={this.onDeleteBookList}>Delete Book List</Button>
           </div>
 
-          <div className="search">
-            <SearchBar onResultSelect={this.onSearchResultSelect} />
-          </div>
-          {this.state.bookAlreadyInBookList && (
-            <Message negative floating>
-              You've already added that book to this book list
-            </Message>
-          )}
-        </Segment>
-
-        {this.state.isResponseEmpty && <h2>No Book Lists have been added</h2>}
-
-        <Segment>
-          <RadioButtons
-            newReadStatus={this.state.readStatus}
-            handleChange={this.handleChange}
-          />
           {this.state.isLoaded && !this.state.isResponseEmpty && (
-            <BookList
+            <BookShelf
               onDelete={this.onDeleteBook}
               readStatus={this.state.readStatus}
-              bookList={bookList}
+              bookShelf={this.state.filteredBookShelf}
               addToRead={this.addToRead}
             />
           )}

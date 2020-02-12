@@ -50,7 +50,7 @@ class SearchBar extends React.Component {
           value={value}
           results={results}
           loading={isLoading}
-          placeholder={"Search books"}
+          placeholder={"Add a book"}
         />
       </div>
     );

@@ -31,12 +31,21 @@ class Publisher(models.Model):
         return self.publisher_name
 
 
+class Genre(models.Model):
+    genre_id = models.AutoField(primary_key=True)
+    genre_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.genre_name
+
+
 class Book(models.Model):
     book_id = models.AutoField(primary_key=True)
     isbn = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     publisher = models.ForeignKey(Publisher, null=True, on_delete=models.CASCADE)
+    genre = models.ManyToManyField(Genre)
     pub_date = models.DateField("date published")
     pages = models.PositiveIntegerField()
     language = models.CharField(max_length=200, default="")
@@ -47,23 +56,12 @@ class Book(models.Model):
         return self.title
 
 
-class BookList(models.Model):
-    name = models.CharField(max_length=200)
-    date_created = models.DateField(auto_now_add=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-
 class BookInfo(models.Model):
     book_info_id = models.AutoField(primary_key=True)
     is_read = models.BooleanField(default=False)
     date_finished_reading = models.DateField(blank=True, null=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    book_list = models.ForeignKey(
-        BookList, on_delete=models.CASCADE, related_name="book_infos"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return "Book: {} isRead: {}".format(self.book, self.is_read)

@@ -4,6 +4,7 @@
 
 .search {
   margin-top: 0.8em;
+  margin-bottom: 0.4em;
 }
 
 .d {
@@ -12,4 +13,7 @@
 h1 {
   font-size: 70px;
   margin-bottom: -0.1em;
+}
+.slider {
+  margin-bottom: 0.5em;
 }

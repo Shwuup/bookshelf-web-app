@@ -18,19 +18,17 @@ from django.urls import path
 from bookshelf import views
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken import views as rviews
+from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
-    path("api/book/", views.BookCreate.as_view()),
-    path("api/author/", views.AuthorCreate.as_view()),
-    path("api/publisher/", views.PublisherCreate.as_view()),
-    path("api/booklist/", views.BookListCreate.as_view()),
-    path("api/user/booklist/", views.ViewAllBookLists.as_view()),
+    path("api/book/", views.BookList.as_view()),
+    path("api/author/", views.AuthorList.as_view()),
+    path("api/publisher/", views.PublisherList.as_view()),
+    path("books/<int:pk>/", views.BookDetail.as_view()),
+    path("books/", views.BookInfoList.as_view()),
     path("signup/", csrf_exempt(views.signup)),
     path("api-token-auth/", rviews.obtain_auth_token),
     path("search/", views.handle_search),
-    path("create-book-list", views.add_new_booklist),
-    path("delete-book-list", views.delete_booklist),
-    path("delete-book", views.delete_book),
-    path("add-book-to-read", views.add_book_to_read),
-    path("add-new-book", views.add_new_book),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)

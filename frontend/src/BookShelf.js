@@ -1,15 +1,14 @@
 import React, { Fragment } from "react";
 import { Card, Image, Button } from "semantic-ui-react";
-import "./BookList.css";
+import "./BookShelf.css";
 
-const BookList = props => {
-  const { bookList, readStatus } = props;
+const BookShelf = props => {
+  const { bookShelf, readStatus } = props;
 
   return (
     <Fragment>
-      <h2>Book List: {bookList.name}</h2>
       <Card.Group stackable>
-        {bookList.book_infos
+        {bookShelf
           .filter(book_info =>
             readStatus === "read" ? book_info.is_read : !book_info.is_read
           )
@@ -49,4 +48,4 @@ const BookList = props => {
   );
 };
 
-export default BookList;
+export default BookShelf;

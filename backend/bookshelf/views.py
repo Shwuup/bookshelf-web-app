@@ -1,9 +1,7 @@
 from django.shortcuts import render
-from bookshelf.models import Book, BookList, Author, Publisher, BookInfo
+from bookshelf.models import Book, Author, Publisher, BookInfo
 from bookshelf.serializers import (
     BookSerializer,
-    BookListSerializer,
-    BookListSerializerFull,
     PublisherSerializer,
     AuthorSerializer,
     BookInfoSerializer,
@@ -20,26 +18,66 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from datetime import datetime
+from rest_framework import status
 
 
-class AuthorCreate(generics.ListCreateAPIView):
+class AuthorList(generics.ListCreateAPIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
 
-class BookCreate(generics.ListCreateAPIView):
+class BookList(generics.ListCreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
 
-class PublisherCreate(generics.ListCreateAPIView):
+class PublisherList(generics.ListCreateAPIView):
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer
 
 
-class BookListCreate(generics.ListCreateAPIView):
-    queryset = BookList.objects.all()
-    serializer_class = BookListSerializer
+class BookInfoList(generics.ListCreateAPIView):
+    queryset = BookInfo.objects.all()
+    serializer_class = BookInfoSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (authentication.TokenAuthentication,)
+
+    def create(self, request):
+        user = request.user
+        body = request.data
+        book_id = body["bookId"]
+        new_book = Book.objects.get(book_id=book_id)
+        book_info = BookInfo(book=new_book, user=user)
+        book_info.save()
+        serializer = BookInfoSerializer(book_info)
+        return JsonResponse(serializer.data)
+
+
+class BookDetail(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (authentication.TokenAuthentication,)
+
+    def get_object(self, pk):
+        try:
+            return BookInfo.objects.get(book_info_id=pk)
+        except BookInfo.DoesNotExist:
+            raise Http404
+
+    def patch(self, request, pk, format=None):
+        user = request.user
+        date = request.data["dateAdded"]
+        book_info = self.get_object(pk)
+        serializer = BookInfoSerializer(book_info)
+        book_info.is_read = True
+        book_info.date_finished_reading = datetime.strptime(date, "%d/%m/%Y")
+        book_info.save()
+        return HttpResponse("Updated successfully")
+
+    def delete(self, request, pk, format=None):
+        user = request.user
+        book_info = self.get_object(pk)
+        book_info.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 def signup(request):
@@ -50,88 +88,6 @@ def signup(request):
     return HttpResponse("Account made!")
 
 
-@csrf_exempt
-@api_view(["POST"])
-def add_new_booklist(request):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (authentication.TokenAuthentication,)
-    user = request.user
-
-    body = request.data
-    bookInfo = body["data"]
-    bookListName = body["bookListName"]
-    book_ids = [bookInfo[k]["book_id"] for k in bookInfo]
-    bookList = BookList(name=bookListName, owner=user)
-    bookList.save()
-    for ids in book_ids:
-        obj = Book.objects.get(book_id=ids)
-        bookInfoObj = BookInfo(book=obj, book_list=bookList)
-        bookInfoObj.save()
-
-    return HttpResponse("Completed successfully!")
-
-
-@api_view(["POST"])
-def add_new_book(request):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (authentication.TokenAuthentication,)
-    user = request.user
-
-    body = request.data
-    book_list_id = body["bookListId"]
-    book_id = body["bookId"]
-    new_book = Book.objects.get(book_id=book_id)
-    book_list = BookList.objects.get(id=book_list_id)
-    book_info = BookInfo(book=new_book, book_list=book_list)
-    book_info.save()
-    serializer = BookInfoSerializer(book_info)
-    return JsonResponse(serializer.data)
-    # return HttpResponse("Added successfully")
-
-
-@api_view(["PUT"])
-def add_book_to_read(request):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (authentication.TokenAuthentication,)
-    user = request.user
-    body = request.data["data"]
-    book_info_id = body["bookInfoId"]
-    book_info = BookInfo.objects.get(book_info_id=book_info_id)
-    book_info.is_read = True
-    date = datetime.now()
-    book_info.date_finished_reading = date
-    book_info.save()
-
-    return HttpResponse("Updated successfully")
-
-
-@api_view(["DELETE"])
-def delete_booklist(request):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (authentication.TokenAuthentication,)
-    user = request.user
-
-    body = request.data
-    bookListId = body["id"]
-    BookList.objects.get(id=bookListId).delete()
-
-    return HttpResponse("Deleted successfully")
-
-
-@api_view(["DELETE"])
-def delete_book(request):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (authentication.TokenAuthentication,)
-    user = request.user
-
-    body = request.data
-    book_info_id = body["bookInfoId"]
-    book_info = BookInfo.objects.get(book_info_id=book_info_id)
-    book_info.delete()
-
-    return HttpResponse("Deleted successfully")
-
-
 def handle_search(request):
     term = request.GET.get("query")
     books = Book.objects.all()
@@ -140,15 +96,4 @@ def handle_search(request):
     response_payload = serializer.data
 
     return JsonResponse(response_payload, safe=False)
-
-
-class ViewAllBookLists(APIView):
-    authentication_classes = (authentication.TokenAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        book_list_queryset = BookList.objects.filter(owner=request.user)
-        serializer = BookListSerializerFull
-        book_lists = [serializer(i).data for i in book_list_queryset]
-        return JsonResponse(book_lists, safe=False)
 
