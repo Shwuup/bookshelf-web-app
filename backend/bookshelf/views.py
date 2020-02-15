@@ -7,13 +7,12 @@ from bookshelf.serializers import (
     BookInfoSerializer,
 )
 from rest_framework import generics
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib.auth.models import User
 import json
 from rest_framework import authentication, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
@@ -46,8 +45,12 @@ class BookInfoList(generics.ListCreateAPIView):
         user = request.user
         body = request.data
         book_id = body["bookId"]
+        date = body["dateRead"]
         new_book = Book.objects.get(book_id=book_id)
         book_info = BookInfo(book=new_book, user=user)
+        if date is not None:
+            book_info.is_read = True
+            book_info.date_finished_reading = datetime.strptime(date, "%d/%m/%Y").date()
         book_info.save()
         serializer = BookInfoSerializer(book_info)
         return JsonResponse(serializer.data)
@@ -69,7 +72,7 @@ class BookDetail(APIView):
         book_info = self.get_object(pk)
         serializer = BookInfoSerializer(book_info)
         book_info.is_read = True
-        book_info.date_finished_reading = datetime.strptime(date, "%d/%m/%Y")
+        book_info.date_finished_reading = datetime.strptime(date, "%d/%m/%Y").date()
         book_info.save()
         return HttpResponse("Updated successfully")
 

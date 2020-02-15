@@ -17,7 +17,7 @@ class UserPage extends React.Component {
       isResponseEmpty: true,
       readStatus: "unread",
       bookAlreadyInBookShelf: false,
-      filteredBookShelf: []
+      currentDropDownGenre: "All"
     };
   }
 
@@ -36,8 +36,7 @@ class UserPage extends React.Component {
         this.setState({
           bookShelf: response.data,
           isLoaded: true,
-          isResponseEmpty: isEmpty,
-          filteredBookShelf: response.data
+          isResponseEmpty: isEmpty
         });
       })
       .catch(error => {
@@ -73,6 +72,7 @@ class UserPage extends React.Component {
   };
 
   onSearchResultSelect = (_, data) => {
+    let date = null;
     let bookShelf = this.state.bookShelf;
     const newBook = data.result;
     const isAlreadyInBookShelf = bookShelf.find(
@@ -82,12 +82,15 @@ class UserPage extends React.Component {
       this.setState({ bookAlreadyInBookShelf: true });
       setTimeout(() => this.setState({ bookAlreadyInBookShelf: false }), 3000);
     } else {
+      if (this.state.readStatus === "read") {
+        date = moment().format("DD/MM/YYYY");
+      }
       const { cookies } = this.props;
       const token = cookies.get("tokenAuth");
       axios
         .post(
           "http://127.0.0.1:8000/books/",
-          { bookId: newBook.book_id },
+          { bookId: newBook.book_id, dateRead: date },
           {
             headers: {
               Authorization: token,
@@ -110,7 +113,6 @@ class UserPage extends React.Component {
     const newBookShelf = currentBookShelf.filter(
       book_info => book_info.book.book_id !== bookId
     );
-
     const { cookies } = this.props;
     const token = cookies.get("tokenAuth");
     axios
@@ -119,17 +121,20 @@ class UserPage extends React.Component {
           Authorization: token
         }
       })
-      .then(() => this.setState({ bookShelf: newBookShelf }));
+      .then(() =>
+        this.setState({
+          bookShelf: newBookShelf
+        })
+      );
   };
 
   onDropDownChange = (_, data) => {
     const genre = data.value;
-    let books = this.state.bookShelf;
-    this.setState({ filteredBookShelf: this.filterByGenre(books, genre) });
+    this.setState({ currentDropDownGenre: genre });
   };
 
   filterByGenre = (books, genre) => {
-    return genre === "Any"
+    return genre === "All"
       ? this.state.bookShelf
       : books.filter(bookInfo =>
           find(bookInfo.book.genre, { genre_name: genre })
@@ -139,9 +144,9 @@ class UserPage extends React.Component {
   render() {
     const genreOptions = [
       {
-        key: "Any",
-        value: "Any",
-        text: "Any",
+        key: "All",
+        value: "All",
+        text: "All",
         label: { color: "black", empty: true, circular: true }
       },
       {
@@ -199,7 +204,10 @@ class UserPage extends React.Component {
             <BookShelf
               onDelete={this.onDeleteBook}
               readStatus={this.state.readStatus}
-              bookShelf={this.state.filteredBookShelf}
+              bookShelf={this.filterByGenre(
+                this.state.bookShelf,
+                this.state.currentDropDownGenre
+              )}
               addToRead={this.addToRead}
             />
           )}
