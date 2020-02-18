@@ -43,7 +43,7 @@ class Book(models.Model):
     book_id = models.AutoField(primary_key=True)
     isbn = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ManyToManyField(Author)
     publisher = models.ForeignKey(Publisher, null=True, on_delete=models.CASCADE)
     genre = models.ManyToManyField(Genre)
     pub_date = models.DateField("date published")
