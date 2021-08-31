@@ -10,7 +10,7 @@ class LogInForm extends Component {
       username: "",
       password: "",
       isValidLogin: true,
-      redirect: false
+      redirect: false,
     };
   }
 
@@ -18,20 +18,21 @@ class LogInForm extends Component {
     const { cookies } = this.props;
     const token = cookies.get("tokenAuth");
     if (token) {
+      console.log(token);
       this.setState({ redirect: true });
     }
   }
 
   handleSubmit = () => {
     axios
-      .post("http://127.0.0.1:8000/api-token-auth/", this.state)
-      .then(response => {
+      .post(`${process.env.REACT_APP_API_URL}/api-token-auth/`, this.state)
+      .then((response) => {
         const token = "Token " + response["data"]["token"];
         const { cookies } = this.props;
         cookies.set("tokenAuth", token, { path: "/" });
         this.setState({ redirect: true });
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.response.status);
         this.setState({ isValidLogin: false });
       });
@@ -42,7 +43,7 @@ class LogInForm extends Component {
   render() {
     const { redirect, username, password, isValidLogin } = this.state;
     if (redirect) {
-      return <Redirect to="/user/booklists" />;
+      return <Redirect to="/user/home" />;
     }
     return (
       <Grid

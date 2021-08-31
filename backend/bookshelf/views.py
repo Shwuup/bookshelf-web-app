@@ -1,10 +1,10 @@
-from django.shortcuts import render
-from bookshelf.models import Book, Author, Publisher, BookInfo
+from bookshelf.models import Book, Author, Publisher, Update, BookStatus
 from bookshelf.serializers import (
     BookSerializer,
+    BookStatusSerializer,
     PublisherSerializer,
     AuthorSerializer,
-    BookInfoSerializer,
+    UpdateSerializer,
 )
 from rest_framework import generics
 from django.http import HttpResponse, JsonResponse, Http404
@@ -18,11 +18,18 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from datetime import datetime
 from rest_framework import status
+from rest_framework import viewsets
+from django.contrib.auth.models import User, Group
 
 
 class AuthorList(generics.ListCreateAPIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+
+
+class UpdateList(generics.ListCreateAPIView):
+    queryset = Update.objects.all()
+    serializer_class = UpdateSerializer
 
 
 class BookList(generics.ListCreateAPIView):
@@ -35,25 +42,35 @@ class PublisherList(generics.ListCreateAPIView):
     serializer_class = PublisherSerializer
 
 
-class BookInfoList(generics.ListCreateAPIView):
-    queryset = BookInfo.objects.all()
-    serializer_class = BookInfoSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (authentication.TokenAuthentication,)
+# class BookInfoList(generics.ListCreateAPIView):
+#     queryset = BookInfo.objects.all()
+#     serializer_class = BookInfoSerializer
+#     permission_classes = (permissions.IsAuthenticated,)
+#     authentication_classes = (authentication.TokenAuthentication,)
 
-    def create(self, request):
-        user = request.user
-        body = request.data
-        book_id = body["bookId"]
-        date = body["dateRead"]
-        new_book = Book.objects.get(book_id=book_id)
-        book_info = BookInfo(book=new_book, user=user)
-        if date is not None:
-            book_info.is_read = True
-            book_info.date_finished_reading = datetime.strptime(date, "%d/%m/%Y").date()
-        book_info.save()
-        serializer = BookInfoSerializer(book_info)
-        return JsonResponse(serializer.data)
+#     def create(self, request):
+#         user = request.user
+#         body = request.data
+#         book_id = body["bookId"]
+#         date = body["dateRead"]
+#         new_book = Book.objects.get(book_id=book_id)
+#         book_info = BookInfo(book=new_book, user=user)
+#         if date is not None:
+#             book_info.is_read = True
+#             book_info.date_finished_reading = datetime.strptime(date, "%d/%m/%Y").date()
+#         book_info.save()
+#         serializer = BookInfoSerializer(book_info)
+#         return JsonResponse(serializer.data)
+
+
+class CurrentBooks(generics.ListAPIView):
+    queryset = BookStatus.objects.filter(status__exact="reading")
+    serializer_class = BookStatusSerializer
+
+
+class ReadBooks(generics.ListAPIView):
+    queryset = BookStatus.objects.filter(status__exact="read")
+    serializer_class = BookStatusSerializer
 
 
 class BookDetail(APIView):
@@ -94,9 +111,8 @@ def signup(request):
 def handle_search(request):
     term = request.GET.get("query")
     books = Book.objects.all()
-    filtered_books = books.filter(title__contains=term)
+    filtered_books = books.filter(title__istartswith=term)
     serializer = BookSerializer(filtered_books, many=True)
     response_payload = serializer.data
 
     return JsonResponse(response_payload, safe=False)
-

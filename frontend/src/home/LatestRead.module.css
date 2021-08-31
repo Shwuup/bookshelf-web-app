@@ -1,0 +1,10 @@
+.container {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 50% 50%;
+  gap: 1px 5px;
+}
+.item img {
+  width: 100px;
+  height: 100px;
+}

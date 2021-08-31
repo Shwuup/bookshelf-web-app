@@ -48,7 +48,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PERMISSION_CLASSES": [],
 }
 
 MIDDLEWARE = [
@@ -133,3 +133,4 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:8080",
     "http://192.168.0.11:3000",
 ]
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

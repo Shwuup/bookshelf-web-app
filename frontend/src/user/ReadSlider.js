@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Radio } from "semantic-ui-react";
 
-const RadioButtons = props => {
+const ReadSlider = (props) => {
   const [radioState, setRadioState] = useState({ value: props.newReadStatus });
 
   const handleChange = () => {
@@ -28,4 +28,4 @@ const RadioButtons = props => {
   );
 };
 
-export default RadioButtons;
+export default ReadSlider;

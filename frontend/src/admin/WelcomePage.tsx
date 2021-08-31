@@ -7,9 +7,9 @@ const WelcomePage = () => (
   <div className="Welcome">
     <header className="Welcome-header">
       <div>
-        <h1>bookshelf.</h1>
+        <h1 id="myHeader">bookshelf.</h1>
+        <h2 id = "subtitle">Manage your book-log today</h2>
       </div>
-      <h2>Manage your book-log today</h2>
       <div>
         <Button as={Link} to="/signup" primary>
           {" "}

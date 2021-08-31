@@ -1,0 +1,25 @@
+.linkContainer {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  padding-left: 15px;
+}
+.container {
+  display: flex;
+  margin-bottom: 10px;
+}
+hr {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-top: 1px#eaeaeb;
+  opacity: 0.4;
+}
+.itemCover {
+  max-width: 100%;
+  max-height: 100%;
+}
+.imgDiv {
+  display: flex;
+  max-width: 100px;
+  max-height: 200px;
+}

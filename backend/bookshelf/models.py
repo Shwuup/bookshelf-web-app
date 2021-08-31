@@ -4,6 +4,7 @@ from rest_framework.authtoken.models import Token
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import json
 
 # Create your models here.
 
@@ -49,20 +50,41 @@ class Book(models.Model):
     pub_date = models.DateField("date published")
     pages = models.PositiveIntegerField()
     language = models.CharField(max_length=200, default="")
-    image = models.CharField(max_length=200, default="")
-    edition = models.PositiveIntegerField()
+    image_url = models.CharField(max_length=200, default="")
+    edition = models.CharField(max_length=80, default="", null=True)
+    blurb = models.TextField(default="")
 
     def __str__(self):
         return self.title
 
 
-class BookInfo(models.Model):
-    book_info_id = models.AutoField(primary_key=True)
-    is_read = models.BooleanField(default=False)
-    date_finished_reading = models.DateField(blank=True, null=True)
+# same fields as Update but only unique entries compared to Update which can have multiple of the "same" update
+class BookStatus(models.Model):
+    book_status_id = models.AutoField(primary_key=True)
+    status = models.CharField(max_length=20)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(default=0)
+    timestamp = models.PositiveBigIntegerField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "Book: {} isRead: {}".format(self.book, self.is_read)
+        return json.dumps(
+            {
+                "book_status_id": self.book_status_id,
+                "status": self.status,
+                "book": self.book.title,
+                "rating": self.rating,
+            },
+        )
 
+
+class Update(models.Model):
+    update_id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=20)
+    timestamp = models.PositiveBigIntegerField()
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(null=True, default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ["-timestamp"]

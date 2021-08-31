@@ -2,8 +2,11 @@
   text-align: center;
 }
 
-h1 {
+#myHeader {
   font-size: 100px;
+}
+#subtitle {
+  margin-top: 1px;
 }
 
 .Welcome-header {

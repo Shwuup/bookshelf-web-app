@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { Button, Form, Segment, Grid } from "semantic-ui-react";
-import SearchBar from "./SearchBar";
+import SearchBar from "../SearchBar";
 import { withRouter } from "react-router-dom";
 
 class AddBookListForm extends React.Component {
@@ -11,32 +11,32 @@ class AddBookListForm extends React.Component {
       name: "",
       error: null,
       newBookList: {},
-      isLoaded: false
+      isLoaded: false,
     };
   }
 
-  handleChange = e => this.setState({ name: e.target.value });
+  handleChange = (e) => this.setState({ name: e.target.value });
 
-  handleClick = _ => {
+  handleClick = (_) => {
     const { cookies, history } = this.props;
     const token = cookies.get("tokenAuth");
     const { name, newBookList } = this.state;
 
     axios
       .post(
-        "http://127.0.0.1:8000/create-book-list",
+        `${process.env.REACT_APP_API_URL}/create-book-list`,
         { bookListName: name, data: newBookList },
         {
           headers: {
             Authorization: token,
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       )
-      .then(_ => {
+      .then((_) => {
         history.push("/user");
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   };
@@ -72,7 +72,7 @@ class AddBookListForm extends React.Component {
                 a
               />
 
-              {Object.keys(this.state.newBookList).map(x => (
+              {Object.keys(this.state.newBookList).map((x) => (
                 <p style={{ color: "black", textAlign: "left" }}>{x}</p>
               ))}
               <Button

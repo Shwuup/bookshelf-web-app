@@ -10,9 +10,11 @@ class SignUpForm extends Component {
   }
 
   handleSubmit = () =>
-    axios.post("http://127.0.0.1:8000/signup/", this.state).then(response => {
-      console.log("success!");
-    });
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/signup/`, this.state)
+      .then((response) => {
+        console.log("success!");
+      });
 
   handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
