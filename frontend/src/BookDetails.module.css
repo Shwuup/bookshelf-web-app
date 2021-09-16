@@ -1,0 +1,7 @@
+.text {
+  display: flex;
+  padding-left: 10px;
+  padding-right: 40px;
+  flex-direction: column;
+  padding-bottom: 10px;
+}

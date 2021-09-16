@@ -1,0 +1,33 @@
+.sideBarItem {
+  display: flex;
+  border: 1px solid #c7c7c7;
+  background-color: #ffffff;
+  height: 60px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.sideBarItem:hover {
+  background-color: #373d3f;
+  color: white;
+}
+.sideBarItem + .sideBarItem {
+  border-top: none;
+}
+.sideBarItemSelected + .sideBarItem {
+  border-top: none;
+}
+.sideBarItem + .sideBarItemSelected {
+  border-top: none;
+}
+
+.sideBarItemSelected {
+  display: flex;
+  border: 1px solid #c7c7c7;
+  background-color: #373d3f;
+  color: white;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+}

@@ -24,13 +24,14 @@ from django.urls import include, path
 
 
 urlpatterns = [
-    path("api/book/", views.BookList.as_view()),
-    path("api/author/", views.AuthorList.as_view()),
-    path("api/publisher/", views.PublisherList.as_view()),
+    path("api/books/", views.BookList.as_view()),
+    path("books/<int:pk>/", views.BookGet.as_view()),
+    path("api/authors/", views.AuthorList.as_view()),
+    path("api/publishers/", views.PublisherList.as_view()),
     path("api/updates/", views.UpdateList.as_view()),
-    path("books/<int:pk>/", views.BookDetail.as_view()),
-    path("books/current/", views.CurrentBooks.as_view()),
-    path("books/read/", views.ReadBooks.as_view()),
+    path("api/books/<int:pk>/", views.BookDetail.as_view()),
+    path("shelf/", views.Shelf.as_view()),
+    path("shelf/<int:pk>/", views.BookStatusPut.as_view()),
     path("signup/", csrf_exempt(views.signup)),
     path("api-token-auth/", rviews.obtain_auth_token),
     path("search/", views.handle_search),

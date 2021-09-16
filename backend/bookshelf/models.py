@@ -50,7 +50,7 @@ class Book(models.Model):
     pub_date = models.DateField("date published")
     pages = models.PositiveIntegerField()
     language = models.CharField(max_length=200, default="")
-    image_url = models.CharField(max_length=200, default="")
+    image = models.CharField(max_length=200, default="")
     edition = models.CharField(max_length=80, default="", null=True)
     blurb = models.TextField(default="")
 
@@ -60,6 +60,9 @@ class Book(models.Model):
 
 # same fields as Update but only unique entries compared to Update which can have multiple of the "same" update
 class BookStatus(models.Model):
+    class Meta:
+        ordering = ["-timestamp"]
+
     book_status_id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=20)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
@@ -74,17 +77,28 @@ class BookStatus(models.Model):
                 "status": self.status,
                 "book": self.book.title,
                 "rating": self.rating,
+                "timestamp": self.timestamp,
             },
         )
 
 
 class Update(models.Model):
     update_id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=20)
+    status = models.CharField(max_length=20)
     timestamp = models.PositiveBigIntegerField()
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
     rating = models.PositiveIntegerField(null=True, default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book_status = models.ForeignKey(BookStatus, null=True, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["-timestamp"]
+
+    def __str__(self):
+        return json.dumps(
+            {
+                "update_id": self.update_id,
+                "type": self.status,
+                "timestamp": self.timestamp,
+                "book_status": str(self.book_status),
+            }
+        )

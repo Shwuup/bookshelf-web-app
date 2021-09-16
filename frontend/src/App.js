@@ -3,12 +3,13 @@ import React, { Component } from "react";
 import SignUpForm from "./admin/SignUpForm";
 import WelcomePage from "./admin/WelcomePage";
 import LogInForm from "./admin/LogInForm";
-import MyBooksPage from "./user/MyBooksPage";
+import MyBooksPage from "./shelf/MyBooksPage";
 import HomePage from "./home/HomePage";
 import { Route } from "react-router-dom";
 import { withCookies } from "react-cookie";
 import NavBar from "./NavBar";
-
+import "./App.css";
+import BookPage from "./book-details/BookPage";
 class App extends Component {
   render() {
     return (
@@ -29,6 +30,7 @@ class App extends Component {
           path="/user/bookshelf/"
           render={() => <MyBooksPage cookies={this.props.cookies} />}
         />
+        <Route path="/book/:id" render={() => <BookPage />} />
       </div>
     );
   }

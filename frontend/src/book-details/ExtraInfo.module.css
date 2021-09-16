@@ -1,0 +1,14 @@
+.extraInfoContent {
+  display: flex;
+  max-width: 250px;
+}
+.label {
+  font-weight: bold;
+  color: #373d3f;
+}
+.labels {
+  margin-right: 50px;
+}
+.content {
+  display: flex;
+}

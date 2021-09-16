@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./NavBar.css";
-import { Search } from "semantic-ui-react";
+import SearchBar from "./SearchBar";
 const NavBar = () => (
   <div className="nav">
-    <Link to="/">
+    <Link to="/user/home">
       <h1>bookshelf.</h1>
     </Link>
     <ul>
@@ -18,7 +18,7 @@ const NavBar = () => (
         <Link to="/user/stats">Stats</Link>
       </li>
     </ul>
-    <Search placeholder={"Search books"} />
+    <SearchBar />
   </div>
 );
 

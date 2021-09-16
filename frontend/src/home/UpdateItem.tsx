@@ -28,36 +28,49 @@ const shortenBlurb = (blurb: string) => {
   return `${shortenedBlurb}...`;
 };
 
-const UpdateItem = ({ onDropdownClick, update }: any) => (
-  <div className={styles.card}>
-    <div className={styles.header}>
-      <div className={styles.updateDetails}>
-        <div className={styles.updateText}>{decideHeader(update.type)}</div>
-        {update.type === "rating" && (
-          <Rating rating={update.rating} maxRating={5} disabled></Rating>
-        )}
+const UpdateItem = ({ onDropdownClick, update }: any) => {
+  const { book_status } = update;
+  const { book } = book_status;
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.header}>
+        <div className={styles.updateDetails}>
+          <div className={styles.updateText}>{decideHeader(update.status)}</div>
+          {update.status === "rating" && (
+            <Rating rating={update.rating} maxRating={5} disabled></Rating>
+          )}
+        </div>
+        <div className={styles.time}>
+          <p>{getTimePassed(update.timestamp)}</p>
+        </div>
       </div>
-      <div className={styles.time}>
-        <p>{getTimePassed(update.timestamp)}</p>
+      <div className={styles.content}>
+        <div className={styles.imageDiv}>
+          <img
+            className={styles.updateItemCover}
+            src={book.image}
+            alt={`Cover of the book: ${book.title}`}
+          />
+        </div>
+
+        <div className={styles.text}>
+          <BookTitle book={book} />
+          <Authors authors={book.author} />
+          <p>
+            {shortenBlurb(book.blurb)}{" "}
+            <a href={`/book/${book.book_id}`}>Continue reading</a>
+          </p>
+          <div className={styles.dropdown}>
+            <ShelfDropdown
+              bookStatus={update.book_status}
+              update={update}
+              onDropdownClick={onDropdownClick}
+            />
+          </div>
+        </div>
       </div>
     </div>
-    <div className={styles.content}>
-      <img
-        className={styles.updateItemCover}
-        src={update.book.image_url}
-        alt={`Cover of the book: ${update.book.title}`}
-      />
-      <div className={styles.text}>
-        <BookTitle book={update.book} />
-        <Authors authors={update.book.author} />
-        <p>{shortenBlurb(update.book.blurb)}</p>
-        <ShelfDropdown
-          update={update}
-          category={update.type}
-          onDropdownClick={onDropdownClick}
-        />
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 export default UpdateItem;

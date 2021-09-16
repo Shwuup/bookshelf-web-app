@@ -24,7 +24,7 @@ const ShelfDropdown = (props: any) => (
     <div className={styles.container}>
       <Dropdown
         placeholder="Select a shelf"
-        defaultValue={props.category === "rating" ? "read" : props.category}
+        defaultValue={props.bookStatus.status}
         fluid
         selection
         onChange={(_, data) => {

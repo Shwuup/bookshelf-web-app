@@ -7,11 +7,11 @@ const CurrentlyReading = (props: any) => (
   <Fragment>
     <h3>Currently Reading</h3>
     {props.currentBooks.map((bookStatus: any) => (
-      <div className={styles.container}>
+      <div key={bookStatus.book_status_id} className={styles.container}>
         <div className={styles.imgDiv}>
           <img
             className={styles.itemCover}
-            src={bookStatus.book.image_url}
+            src={bookStatus.book.image}
             alt="book cover"
           />
         </div>

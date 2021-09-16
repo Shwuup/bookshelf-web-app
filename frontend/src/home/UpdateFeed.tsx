@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
+import { Update } from "../types";
 import UpdateItem from "./UpdateItem";
-import { Update } from "./types";
 
 const UpdateFeed = (props: any) => (
   <Fragment>

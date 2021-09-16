@@ -3,6 +3,12 @@ from bookshelf.models import Book, Author, BookStatus, Publisher, Update
 from django.contrib.auth.models import User, Group
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id"]
+
+
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
@@ -21,47 +27,38 @@ class PublisherSerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(serializers.ModelSerializer):
+    author = AuthorField(many=True, read_only=True)
+
     class Meta:
         model = Book
         fields = "__all__"
         depth = 2
 
 
-class BookStatusBookSerializer(serializers.ModelSerializer):
+class BookStatusAndUpdateBookSerializer(serializers.ModelSerializer):
     author = AuthorField(many=True, read_only=True)
 
     class Meta:
         model = Book
-        fields = ["title", "author", "image_url", "book_id"]
+        fields = ["title", "author", "image", "book_id", "blurb"]
         depth = 2
 
 
 class BookStatusSerializer(serializers.ModelSerializer):
-    book = BookStatusBookSerializer()
+    book = BookStatusAndUpdateBookSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = BookStatus
-        fields = ["book_status_id", "book"]
-
-
-class BookUpdateSerializer(serializers.ModelSerializer):
-    author = AuthorField(many=True, read_only=True)
-
-    class Meta:
-        model = Book
-        fields = ["title", "author", "blurb", "image_url", "book_id"]
         depth = 2
+        fields = "__all__"
 
 
 class UpdateSerializer(serializers.ModelSerializer):
-    book = BookUpdateSerializer()
+    user = UserSerializer(read_only=True)
+    book_status = BookStatusSerializer(read_only=True)
 
     class Meta:
         model = Update
-        fields = [
-            "update_id",
-            "book",
-            "rating",
-            "type",
-            "timestamp",
-        ]
+        fields = ["update_id", "rating", "status", "timestamp", "user", "book_status"]
+        depth = 2
