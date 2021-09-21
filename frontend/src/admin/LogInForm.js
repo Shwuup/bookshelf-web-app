@@ -18,7 +18,6 @@ class LogInForm extends Component {
     const { cookies } = this.props;
     const token = cookies.get("tokenAuth");
     if (token) {
-      console.log(token);
       this.setState({ redirect: true });
     }
   }
@@ -28,12 +27,13 @@ class LogInForm extends Component {
       .post(`${process.env.REACT_APP_API_URL}/api-token-auth/`, this.state)
       .then((response) => {
         const token = "Token " + response["data"]["token"];
+        const userId = response["data"]["id"];
         const { cookies } = this.props;
         cookies.set("tokenAuth", token, { path: "/" });
+        cookies.set("userId", userId);
         this.setState({ redirect: true });
       })
       .catch((error) => {
-        console.log(error.response.status);
         this.setState({ isValidLogin: false });
       });
   };

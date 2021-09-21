@@ -87,7 +87,7 @@ class Update(models.Model):
     status = models.CharField(max_length=20)
     timestamp = models.PositiveBigIntegerField()
     rating = models.PositiveIntegerField(null=True, default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     book_status = models.ForeignKey(BookStatus, null=True, on_delete=models.CASCADE)
 
     class Meta:

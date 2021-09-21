@@ -4,7 +4,8 @@ import React from "react";
 import CurrentlyReading from "./CurrentlyReading";
 import styles from "./HomePage.module.css";
 import LatestRead from "./LatestRead";
-import { Update, BookStatus } from "../types";
+import { Update } from "../types";
+import { postUpdate, putBookStatus } from "../APIEndpoints";
 import UpdateFeed from "./UpdateFeed";
 
 class HomePage extends React.Component<any, any> {
@@ -17,42 +18,39 @@ class HomePage extends React.Component<any, any> {
     };
   }
 
-  createNewUpdate = (update: Update) => {
-    const bookStatus = update.book_status;
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/api/updates/`, update)
-      .then((response) => {
-        this.updateBookStatus(bookStatus);
-      });
-  };
-
-  updateBookStatus = (bookStatus: BookStatus) => {
-    const { cookies } = this.props;
-    const token = cookies.get("tokenAuth");
-    axios.put(
-      `${process.env.REACT_APP_API_URL}/book/${bookStatus.book_status_id}/`,
-      bookStatus,
-      { headers: { Authorization: token } }
-    );
-  };
-
   componentDidMount() {
+    const { cookies } = this.props;
+    const userId = cookies.get("userId");
     axios
-      .get(`${process.env.REACT_APP_API_URL}/api/updates/`)
+      .get(`${process.env.REACT_APP_API_URL}/users/${userId}/updates/`)
       .then((response) => {
         this.setState({ updates: response.data });
       });
     axios
-      .get(`${process.env.REACT_APP_API_URL}/shelf/?status=reading`)
+      .get(
+        `${process.env.REACT_APP_API_URL}/users/${userId}/shelf/?status=reading`
+      )
       .then((response) => {
         this.setState({ currentBooks: response.data });
       });
     axios
-      .get(`${process.env.REACT_APP_API_URL}/shelf/?status=read`)
+      .get(
+        `${process.env.REACT_APP_API_URL}/users/${userId}/shelf/?status=read`
+      )
       .then((response) => {
         this.setState({ readBooks: response.data });
       });
   }
+
+  apiCalls = (update: Update) => {
+    const { cookies } = this.props;
+    const token = cookies.get("tokenAuth");
+    const userId = cookies.get("userId");
+    postUpdate(update, userId, token).then((_) => {
+      const bookStatus = update.book_status;
+      putBookStatus(bookStatus, token, userId);
+    });
+  };
 
   syncBookStatusAndUpdate = (update: Update) => {
     const bookStatus = update.book_status;
@@ -68,7 +66,7 @@ class HomePage extends React.Component<any, any> {
     var newUpdatesArray = this.state.updates.slice();
     newUpdatesArray.unshift(update);
     this.setState({ updates: newUpdatesArray });
-    this.createNewUpdate(update);
+    this.apiCalls(update);
   };
   render() {
     return (

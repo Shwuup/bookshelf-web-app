@@ -14,6 +14,7 @@ const Genres = ({ genres }: any) => {
           <Button
             onClick={() => history.push(`/genre/${genre.genre_id}`)}
             className="genreButton"
+            key={genre.genre_id}
           >
             {genre.genre_name}
           </Button>

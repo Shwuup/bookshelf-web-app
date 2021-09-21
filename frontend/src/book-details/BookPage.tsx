@@ -1,44 +1,28 @@
+import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory } from "react-router-dom";
-import { Button, Divider } from "semantic-ui-react";
+import { useParams } from "react-router-dom";
+import { Divider } from "semantic-ui-react";
+import {
+  getBook,
+  getBookStatusByBook,
+  postBookStatus,
+  putBookStatus,
+  postUpdate,
+} from "../APIEndpoints";
 import Authors from "../Authors";
-import { getBook } from "../Services";
 import ShelfDropdown from "../ShelfDropdown";
 import { Book } from "../types";
+import "./BookPage.css";
 import styles from "./BookPage.module.css";
 import ExtraInfo from "./ExtraInfo";
-import "./BookPage.css";
 import Genres from "./Genres";
-const BookPage = () => {
+
+const BookPage = (props: any) => {
   const { id }: any = useParams();
-  const bookStatus = {
-    book_status_id: 6,
-    book: {
-      title: "Norwegian Wood",
-      author: [
-        {
-          id: 12,
-          name: "Haruki Murakami",
-        },
-        {
-          id: 13,
-          name: "Jay Rubin",
-        },
-      ],
-      image:
-        "https://booklist-images.s3.ap-southeast-2.amazonaws.com/norwegian_wood.jpg",
-      book_id: 12,
-      blurb:
-        "The haunting, enigmatic love story that turned Murakami into a literary superstar in Japan, and is his bestselling title throughout the world\n\nWhen he hears her favourite Beatles song, Toru Watanabe recalls his first love Naoko, the girlfriend of his best friend Kizuki. Immediately he is transported back almost twenty years to his student days in Tokyo, adrift in a world of uneasy friendships, casual sex, passion, loss and desire - to a time when an impetuous young woman called Midori marches into his life and he has to choose between the future and the past.",
-    },
-    user: {
-      id: 1,
-    },
-    status: "read",
-    rating: 0,
-    timestamp: 1630828751,
-  };
-  const history = useHistory();
+  const { cookies } = props;
+  const userId = cookies.get("userId");
+  const token = cookies.get("tokenAuth");
+  const [bookStatus, setBookStatus] = useState({ status: "", timestamp: 0 });
   const [book, setBook] = useState<Book>({
     book_id: 0,
     author: [
@@ -58,11 +42,53 @@ const BookPage = () => {
     publisher: { publisher_id: 0, publisher_name: "" },
     genre: [],
   });
+  const shelfOnChange = (status: string, _: any) => {
+    const timestamp = moment().unix();
+    if (bookStatus.status === "") {
+      let newBookStatus: any = {
+        book: { book_id: id },
+        status: status,
+        rating: 0,
+        timestamp: timestamp,
+      };
+      const update: any = {
+        book_status: newBookStatus,
+        status: status,
+        rating: 0,
+        timestamp: timestamp,
+      };
+      setBookStatus(newBookStatus);
+      postBookStatus(newBookStatus, userId, token).then((response) => {
+        const bookStatusId = response.data.book_status_id;
+        update.book_status.book_status_id = bookStatusId;
+        postUpdate(update, userId, token);
+      });
+    } else {
+      const newBookStatus = { ...bookStatus };
+      newBookStatus.status = status;
+      newBookStatus.timestamp = timestamp;
+      setBookStatus(newBookStatus);
+      putBookStatus(newBookStatus, token, userId).then((response) => {
+        const update: any = {
+          book_status: newBookStatus,
+          status: status,
+          rating: 0,
+          timestamp: timestamp,
+        };
+        postUpdate(update, userId, token);
+      });
+    }
+  };
   useEffect(() => {
     getBook(id).then((response) => {
       setBook(response.data);
     });
-  }, [id]);
+    const { cookies } = props;
+    const userId = cookies.get("userId");
+    getBookStatusByBook(userId, id).then((response) => {
+      setBookStatus(response.data);
+    });
+  }, [id, props]);
   return (
     <div className={styles.container}>
       <div className={styles.cover}>
@@ -73,7 +99,11 @@ const BookPage = () => {
             alt={`Cover of the book ${book.title}`}
           />
         </div>
-        <ShelfDropdown bookStatus={bookStatus} />
+        <ShelfDropdown
+          update={{}}
+          bookStatus={bookStatus}
+          onDropdownClick={shelfOnChange}
+        />
       </div>
       <div className={styles.info}>
         <h1 className={styles.title}>{book.title}</h1>

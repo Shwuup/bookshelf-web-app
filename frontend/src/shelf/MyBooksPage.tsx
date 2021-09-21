@@ -1,7 +1,6 @@
-import axios from "axios";
 import moment from "moment";
 import React from "react";
-import { createNewUpdate, updateBookStatusApiCall } from "../Services";
+import { getBookStatuses, postUpdate, putBookStatus } from "../APIEndpoints";
 import { BookStatus } from "../types";
 import BookPageGridItem from "./BookPageGridItem";
 import styles from "./MyBooksPage.module.css";
@@ -21,7 +20,9 @@ class MyBooksPage extends React.Component<any, any> {
   }
 
   componentDidMount() {
-    axios.get(`${process.env.REACT_APP_API_URL}/shelf/`).then((response) => {
+    const { cookies } = this.props;
+    const userId = cookies.get("userId");
+    getBookStatuses(userId).then((response) => {
       this.setState({
         books: response.data,
         filteredBooks: response.data,
@@ -38,6 +39,7 @@ class MyBooksPage extends React.Component<any, any> {
     const ratingTimestamp = moment().unix();
     const { cookies } = this.props;
     const token = cookies.get("tokenAuth");
+    const userId = cookies.get("userId");
     const newBooks = [...this.state.books];
     const newBookStatusIndex = newBooks.findIndex(
       (bookStatus: any) => bookStatus.book_status_id === newBookStatusId
@@ -45,11 +47,14 @@ class MyBooksPage extends React.Component<any, any> {
     newBooks[newBookStatusIndex].rating = rating;
     this.setState({ books: newBooks });
     const newBookStatus = newBooks[newBookStatusIndex];
-    updateBookStatusApiCall(newBookStatus, token);
+    putBookStatus(newBookStatus, token, userId);
     this.createRatingUpdate(newBookStatus, ratingTimestamp);
   };
 
   createRatingUpdate = (bookStatus: BookStatus, updateTimestamp: number) => {
+    const { cookies } = this.props;
+    const token = cookies.get("tokenAuth");
+    const userId = cookies.get("userId");
     const update = {
       book_status: bookStatus,
       status: "rating",
@@ -57,7 +62,7 @@ class MyBooksPage extends React.Component<any, any> {
       rating: bookStatus.rating,
       user: bookStatus.user,
     };
-    createNewUpdate(update);
+    postUpdate(update, userId, token);
   };
 
   render() {

@@ -28,12 +28,10 @@ urlpatterns = [
     path("books/<int:pk>/", views.BookGet.as_view()),
     path("api/authors/", views.AuthorList.as_view()),
     path("api/publishers/", views.PublisherList.as_view()),
-    path("api/updates/", views.UpdateList.as_view()),
-    path("api/books/<int:pk>/", views.BookDetail.as_view()),
-    path("shelf/", views.Shelf.as_view()),
-    path("shelf/<int:pk>/", views.BookStatusPut.as_view()),
+    path("users/<int:user_id>/updates/", views.UpdateView.as_view()),
+    path("users/<int:user_id>/shelf/", views.Shelf.as_view()),
     path("signup/", csrf_exempt(views.signup)),
-    path("api-token-auth/", rviews.obtain_auth_token),
+    path("api-token-auth/", views.CustomGetAuthToken.as_view()),
     path("search/", views.handle_search),
 ]
 

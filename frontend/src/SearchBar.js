@@ -52,7 +52,6 @@ class SearchBar extends React.Component {
           <Search
             onSearchChange={this.handleSearchChange}
             onResultSelect={this.onResultSelect}
-            onMouseDown={this.eraseValueComp}
             value={value}
             results={results}
             loading={isLoading}

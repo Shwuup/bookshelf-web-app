@@ -1,7 +1,10 @@
+from django.core.exceptions import ObjectDoesNotExist
 from bookshelf.models import Book, Author, Publisher, Update, BookStatus
 from bookshelf.serializers import (
+    BookSearchSerializer,
     BookSerializer,
     BookStatusSerializer,
+    BookStatus,
     PublisherSerializer,
     AuthorSerializer,
     UpdateSerializer,
@@ -10,21 +13,14 @@ from rest_framework import generics
 from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib.auth.models import User
 import json
-from rest_framework import authentication, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view
-from datetime import datetime
 from rest_framework import status
-from rest_framework import viewsets
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from rest_framework.parsers import JSONParser
-from rest_framework.decorators import authentication_classes
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.authtoken.views import ObtainAuthToken
 
 
 class AuthorList(generics.ListCreateAPIView):
@@ -83,35 +79,74 @@ class PublisherList(generics.ListCreateAPIView):
     serializer_class = PublisherSerializer
 
 
-class AllBooks(generics.ListCreateAPIView):
-    permission_classes = []
-    authentication_classes = []
-    queryset = BookStatus.objects.all()
-    serializer_class = BookStatusSerializer
-
-
-class Shelf(generics.ListCreateAPIView):
+class UpdateView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get(self, request):
-        status = request.GET.get("status")
-        if status == "read":
-            book_statuses = BookStatus.objects.filter(status__exact="read")
-        elif status == "reading":
-            book_statuses = BookStatus.objects.filter(status__exact="reading")
-        elif status == "want-to-read":
-            book_statuses = BookStatus.objects.filter(status__exact="want to read")
-        else:
-            book_statuses = BookStatus.objects.all()
+    def get(self, request, user_id):
+        updates = Update.objects.filter(user_id=user_id)
+        serializer = UpdateSerializer(updates, many=True)
+        response = serializer.data
+        return JsonResponse(response, safe=False)
 
-        serializer = BookStatusSerializer(book_statuses, many=True)
-        response_payload = serializer.data
-        return JsonResponse(response_payload, safe=False)
+    def post(self, request, user_id):
+        data = JSONParser().parse(request)
+        user = User.objects.get(id=user_id)
+        book_status = BookStatus.objects.get(
+            book_status_id=data["book_status"]["book_status_id"]
+        )
+        update = Update(
+            status=data["status"],
+            rating=data["rating"],
+            timestamp=data["timestamp"],
+            user=user,
+            book_status=book_status,
+        )
+        update.save()
+        response = UpdateSerializer(update)
+        return JsonResponse(response.data, status=status.HTTP_201_CREATED)
 
-    def post(self, request):
+
+class Shelf(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, user_id):
+        try:
+            filter_by = request.GET.get("filter")
+            if filter_by == "book":
+                book_id = request.GET.get("book-id")
+                book_status = BookStatus.objects.get(user_id=user_id, book_id=book_id)
+                serializer = BookStatusSerializer(book_status)
+                response = serializer.data
+                return JsonResponse(response)
+            elif filter_by is None:
+                status = request.GET.get("status")
+                if status == "read":
+                    book_statuses = BookStatus.objects.filter(
+                        status="read", user_id=user_id
+                    )
+                elif status == "reading":
+                    book_statuses = BookStatus.objects.filter(
+                        status="reading", user_id=user_id
+                    )
+                elif status == "want-to-read":
+                    book_statuses = BookStatus.objects.filter(
+                        status="want to read", user_id=user_id
+                    )
+                else:
+                    book_statuses = BookStatus.objects.filter(user_id=user_id)
+
+                serializer = BookStatusSerializer(book_statuses, many=True)
+                response_payload = serializer.data
+                return JsonResponse(response_payload, safe=False)
+        except ObjectDoesNotExist:
+            return JsonResponse(
+                {"message": "Book status not found for book"}, status=404
+            )
+
+    def post(self, request, user_id):
         data = JSONParser().parse(request)
         book = Book.objects.get(book_id=data["book"]["book_id"])
-        user = User.objects.get(id=data["user"]["id"])
+        user = User.objects.get(id=user_id)
         book_status = BookStatus(
             timestamp=data["timestamp"],
             rating=data["rating"],
@@ -123,15 +158,16 @@ class Shelf(generics.ListCreateAPIView):
         serializer = BookStatusSerializer(book_status)
         return JsonResponse(serializer.data, status=200)
 
-
-class BookStatusPut(APIView):
-    def put(self, request, pk):
+    def put(self, request, user_id):
+        data = JSONParser().parse(request)
+        book_status_id = data["book_status_id"]
         try:
-            book_status = BookStatus.objects.get(book_status_id=pk)
+            book_status = BookStatus.objects.get(
+                book_status_id=book_status_id, user_id=user_id
+            )
         except BookStatus.DoesNotExist:
             return HttpResponse(status=404)
 
-        data = JSONParser().parse(request)
         serializer = BookStatusSerializer(book_status, data=data)
         if serializer.is_valid():
             serializer.save()
@@ -139,31 +175,11 @@ class BookStatusPut(APIView):
         return JsonResponse(serializer.errors, status=400)
 
 
-class BookDetail(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (authentication.TokenAuthentication,)
-
-    def get_object(self, pk):
-        try:
-            return BookInfo.objects.get(book_info_id=pk)
-        except BookInfo.DoesNotExist:
-            raise Http404
-
-    def patch(self, request, pk, format=None):
-        user = request.user
-        date = request.data["dateAdded"]
-        book_info = self.get_object(pk)
-        serializer = BookInfoSerializer(book_info)
-        book_info.is_read = True
-        book_info.date_finished_reading = datetime.strptime(date, "%d/%m/%Y").date()
-        book_info.save()
-        return HttpResponse("Updated successfully")
-
-    def delete(self, request, pk, format=None):
-        user = request.user
-        book_info = self.get_object(pk)
-        book_info.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class CustomGetAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        response = super(CustomGetAuthToken, self).post(request, *args, **kwargs)
+        token = Token.objects.get(key=response.data["token"])
+        return JsonResponse({"token": token.key, "id": token.user_id})
 
 
 def signup(request):
@@ -178,7 +194,7 @@ def handle_search(request):
     term = request.GET.get("query")
     books = Book.objects.all()
     filtered_books = books.filter(title__istartswith=term)
-    serializer = BookSerializer(filtered_books, many=True)
+    serializer = BookSearchSerializer(filtered_books, many=True)
     response_payload = serializer.data
 
     return JsonResponse(response_payload, safe=False)

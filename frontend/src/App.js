@@ -30,7 +30,10 @@ class App extends Component {
           path="/user/bookshelf/"
           render={() => <MyBooksPage cookies={this.props.cookies} />}
         />
-        <Route path="/book/:id" render={() => <BookPage />} />
+        <Route
+          path="/book/:id"
+          render={() => <BookPage cookies={this.props.cookies} />}
+        />
       </div>
     );
   }

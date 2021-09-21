@@ -1,3 +1,4 @@
+from django.db.models.fields import DateField
 from rest_framework import serializers
 from bookshelf.models import Book, Author, BookStatus, Publisher, Update
 from django.contrib.auth.models import User, Group
@@ -28,6 +29,7 @@ class PublisherSerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     author = AuthorField(many=True, read_only=True)
+    pub_date = serializers.DateField(format="%d/%m/%Y")
 
     class Meta:
         model = Book
@@ -54,11 +56,24 @@ class BookStatusSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class BookStatusNonDetailedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookStatus
+        fields = ["rating", "status"]
+
+
+class BookSearchSerializer(serializers.ModelSerializer):
+    author = AuthorField(many=True, read_only=True)
+
+    class Meta:
+        model = Book
+        fields = ["title", "author", "image", "book_id"]
+
+
 class UpdateSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
     book_status = BookStatusSerializer(read_only=True)
 
     class Meta:
         model = Update
-        fields = ["update_id", "rating", "status", "timestamp", "user", "book_status"]
+        fields = ["update_id", "rating", "status", "timestamp", "book_status"]
         depth = 2
