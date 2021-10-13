@@ -28,30 +28,6 @@ class AuthorList(generics.ListCreateAPIView):
     serializer_class = AuthorSerializer
 
 
-class UpdateList(generics.ListCreateAPIView):
-    permission_classes = []
-    authentication_classes = []
-    queryset = Update.objects.all()
-    serializer_class = UpdateSerializer
-
-    def create(self, request):
-        data = request.data
-        book_status = BookStatus.objects.get(
-            book_status_id=data["book_status"]["book_status_id"]
-        )
-        user = User.objects.get(id=data["user"]["id"])
-        new_update = Update(
-            book_status=book_status,
-            rating=data["rating"],
-            status=data["status"],
-            timestamp=data["timestamp"],
-            user=user,
-        )
-        new_update.save()
-        serializer = UpdateSerializer(new_update)
-        return Response(serializer.data)
-
-
 class BookList(generics.ListCreateAPIView):
     permission_classes = []
     authentication_classes = []
@@ -79,12 +55,23 @@ class PublisherList(generics.ListCreateAPIView):
     serializer_class = PublisherSerializer
 
 
+class UpdatePutDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Update.objects.all()
+    serializer_class = UpdateSerializer
+
+
 class UpdateView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, user_id):
         updates = Update.objects.filter(user_id=user_id)
-        serializer = UpdateSerializer(updates, many=True)
+        filter_by = request.GET.get("filter")
+        if filter_by == status:
+            update = updates.get(status=filter_by)
+            serializer = UpdateSerializer(update)
+        else:
+            serializer = UpdateSerializer(updates, many=True)
         response = serializer.data
         return JsonResponse(response, safe=False)
 
@@ -104,6 +91,12 @@ class UpdateView(APIView):
         update.save()
         response = UpdateSerializer(update)
         return JsonResponse(response.data, status=status.HTTP_201_CREATED)
+
+
+class ShelfPutDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = BookStatus.objects.all()
+    serializer_class = BookStatusSerializer
 
 
 class Shelf(APIView):
@@ -157,22 +150,6 @@ class Shelf(APIView):
         book_status.save()
         serializer = BookStatusSerializer(book_status)
         return JsonResponse(serializer.data, status=200)
-
-    def put(self, request, user_id):
-        data = JSONParser().parse(request)
-        book_status_id = data["book_status_id"]
-        try:
-            book_status = BookStatus.objects.get(
-                book_status_id=book_status_id, user_id=user_id
-            )
-        except BookStatus.DoesNotExist:
-            return HttpResponse(status=404)
-
-        serializer = BookStatusSerializer(book_status, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data)
-        return JsonResponse(serializer.errors, status=400)
 
 
 class CustomGetAuthToken(ObtainAuthToken):

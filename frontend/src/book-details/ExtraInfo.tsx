@@ -1,6 +1,10 @@
 import React from "react";
+import { Book } from "../types";
 import styles from "./ExtraInfo.module.css";
-const ExtraInfo = (props: any) => {
+interface ExtraInfoProps {
+  book: Book;
+}
+const ExtraInfo = (props: ExtraInfoProps) => {
   const { book } = props;
   return (
     <div className={styles.extraInfo}>

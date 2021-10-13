@@ -68,7 +68,7 @@ const BookPage = (props: any) => {
       newBookStatus.status = status;
       newBookStatus.timestamp = timestamp;
       setBookStatus(newBookStatus);
-      putBookStatus(newBookStatus, token, userId).then((response) => {
+      putBookStatus(newBookStatus, token).then((response) => {
         const update: any = {
           book_status: newBookStatus,
           status: status,

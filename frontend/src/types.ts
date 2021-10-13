@@ -12,18 +12,18 @@ export type Book = {
   publisher?: Publisher;
   genre?: Genre[];
 };
+export type PartialBook = Partial<Book>;
 export type Author = {
   id: number;
   name: string;
 };
 
 export type BookStatus = {
-  book_status_id: number;
+  book_status_id?: number;
   book: Book;
   status: string;
   rating: number;
   timestamp: number;
-  user: User;
 };
 
 export type Update = {
@@ -31,7 +31,6 @@ export type Update = {
   rating: number;
   status: string;
   timestamp: number;
-  user: User;
   book_status: BookStatus;
 };
 

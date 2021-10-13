@@ -10,6 +10,8 @@ const UpdateFeed = (props: any) => (
         key={update.update_id}
         update={update}
         onDropdownClick={props.onDropdownClick}
+        deleteOnClick={props.deleteOnClick}
+        renderWithoutDeletedItem={props.renderWithoutDeletedItem}
       ></UpdateItem>
     ))}
   </Fragment>

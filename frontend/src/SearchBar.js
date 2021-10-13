@@ -1,9 +1,10 @@
 import axios from "axios";
-import React, { Fragment } from "react";
-import { Search } from "semantic-ui-react";
 import { debounce } from "lodash";
-import "./SearchBar.css";
+import React, { Fragment } from "react";
 import { Redirect } from "react-router-dom";
+import { Search } from "semantic-ui-react";
+import "./SearchBar.css";
+import SearchResult from "./SearchResult";
 
 class SearchBar extends React.Component {
   constructor(props) {
@@ -33,6 +34,10 @@ class SearchBar extends React.Component {
     }
   };
 
+  resultRenderer = ({ title, author, image }) => (
+    <SearchResult title={title} author={author} image={image} />
+  );
+
   handleSearchChange = (e) => {
     const value = e.target.value;
     this.setState({ isLoading: true, value });
@@ -40,7 +45,7 @@ class SearchBar extends React.Component {
   };
   onResultSelect = (_, data) => {
     const bookId = data["result"]["book_id"];
-    this.setState({ bookId: bookId });
+    this.setState({ bookId: bookId, value: "" });
   };
 
   render() {
@@ -55,7 +60,8 @@ class SearchBar extends React.Component {
             value={value}
             results={results}
             loading={isLoading}
-            placeholder={"Add a book"}
+            resultRenderer={this.resultRenderer}
+            placeholder={"Search for a book"}
           />
         </div>
         {this.state.bookId > 0 && (

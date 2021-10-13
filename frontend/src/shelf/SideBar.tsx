@@ -32,6 +32,7 @@ class SideBar extends React.Component<any, any> {
       <div className={styles.container}>
         {this.state.sideBarItems.map((item: any, index: number) => (
           <SideBarItem
+            key={index}
             text={item.name}
             selected={item.selected}
             position={index}

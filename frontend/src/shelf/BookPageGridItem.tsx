@@ -1,11 +1,18 @@
 import React, { Fragment, useState } from "react";
 import { Rating } from "semantic-ui-react";
+import { deleteBookStatus } from "../APIEndpoints";
 import "./BookPageGridItem.css";
 import styles from "./BookPageGridItem.module.css";
+import DeleteButton from "./DeleteButton";
+
 const BookPageGridItem = (props: any) => {
   const [isOnHover, setIsOnHover] = useState(false);
   const showOnMouseEnter = () => setIsOnHover(true);
   const hideOnMouseLeave = () => setIsOnHover(false);
+
+  const deleteOnClick = (bookStatusId: number) => {
+    deleteBookStatus(bookStatusId, props.token);
+  };
 
   return (
     <Fragment>
@@ -16,7 +23,15 @@ const BookPageGridItem = (props: any) => {
         key={props.bookStatus.book_status_id}
       >
         {isOnHover && (
-          <div className={styles.hoverImage}>
+          <div
+            onClick={() => props.onItemClick(props.bookStatus)}
+            className={styles.hoverImage}
+          >
+            <DeleteButton
+              deleteOnClick={deleteOnClick}
+              renderWithoutDeletedItem={props.renderWithoutDeletedItem}
+              id={props.bookStatus.book_status_id}
+            />
             <div className={styles.hoverContent}>
               <Rating
                 icon="star"

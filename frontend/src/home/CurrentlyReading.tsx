@@ -2,6 +2,8 @@ import React, { Fragment } from "react";
 import styles from "./CurrentlyReading.module.css";
 import Authors from "../Authors";
 import BookTitle from "../BookTitle";
+import "./CurrentlyReading.css";
+import { Button } from "semantic-ui-react";
 
 const CurrentlyReading = (props: any) => (
   <Fragment>
@@ -18,6 +20,15 @@ const CurrentlyReading = (props: any) => (
         <div className={styles.linkContainer}>
           <BookTitle book={bookStatus.book} />
           <Authors authors={bookStatus.book.author} />
+          <Button
+            primary
+            className="finishedReading"
+            content="Finished reading?"
+            onClick={() => {
+              props.setBookStatusModal(bookStatus);
+              props.turnOnModal();
+            }}
+          />
         </div>
       </div>
     ))}

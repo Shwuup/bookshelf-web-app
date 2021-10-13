@@ -7,13 +7,9 @@ export const getBookStatusByBook = (userId: number, bookId: number) => {
   );
 };
 
-export const putBookStatus = (
-  bookStatus: any,
-  token: string,
-  userId: number
-) => {
+export const putBookStatus = (bookStatus: any, token: string) => {
   return axios.put(
-    `${process.env.REACT_APP_API_URL}/users/${userId}/shelf/`,
+    `${process.env.REACT_APP_API_URL}/shelf/${bookStatus.book_status_id}/`,
     bookStatus,
     { headers: { Authorization: token } }
   );
@@ -42,3 +38,13 @@ export const postBookStatus = (
 
 export const getBookStatuses = (userId: number) =>
   axios.get(`${process.env.REACT_APP_API_URL}/users/${userId}/shelf/`);
+
+export const deleteBookStatus = (bookStatusId: number, token: string) =>
+  axios.delete(`${process.env.REACT_APP_API_URL}/shelf/${bookStatusId}/`, {
+    headers: { Authorization: token },
+  });
+
+export const deleteUpdate = (token: string, updateId: number) =>
+  axios.delete(`${process.env.REACT_APP_API_URL}/updates/${updateId}/`, {
+    headers: { Authorization: token },
+  });

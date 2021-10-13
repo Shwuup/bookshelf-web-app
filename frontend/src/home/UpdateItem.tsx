@@ -3,8 +3,18 @@ import React from "react";
 import { Rating } from "semantic-ui-react";
 import Authors from "../Authors";
 import BookTitle from "../BookTitle";
+import DeleteButton from "../shelf/DeleteButton";
 import ShelfDropdown from "../ShelfDropdown";
 import styles from "./UpdateItem.module.css";
+import "./UpdateItem.css";
+import { Update } from "../types";
+
+interface UpdateItemProps {
+  update: Update;
+  deleteOnClick: (updateId: number) => void;
+  renderWithoutDeletedItem: (id: number) => void;
+  onDropdownClick: (updateType: string, update: Update) => void;
+}
 
 const decideHeader = (type: string) => {
   switch (type) {
@@ -28,7 +38,12 @@ const shortenBlurb = (blurb: string) => {
   return `${shortenedBlurb}...`;
 };
 
-const UpdateItem = ({ onDropdownClick, update }: any) => {
+const UpdateItem = ({
+  deleteOnClick,
+  renderWithoutDeletedItem,
+  onDropdownClick,
+  update,
+}: UpdateItemProps) => {
   const { book_status } = update;
   const { book } = book_status;
 
@@ -41,8 +56,12 @@ const UpdateItem = ({ onDropdownClick, update }: any) => {
             <Rating rating={update.rating} maxRating={5} disabled></Rating>
           )}
         </div>
-        <div className={styles.time}>
-          <p>{getTimePassed(update.timestamp)}</p>
+        <div className={styles.updateDeleteButton}>
+          <DeleteButton
+            deleteOnClick={deleteOnClick}
+            renderWithoutDeletedItem={renderWithoutDeletedItem}
+            id={update.update_id!}
+          />
         </div>
       </div>
       <div className={styles.content}>
@@ -68,6 +87,7 @@ const UpdateItem = ({ onDropdownClick, update }: any) => {
               onDropdownClick={onDropdownClick}
             />
           </div>
+          <div className={styles.time}>{getTimePassed(update.timestamp)}</div>
         </div>
       </div>
     </div>
