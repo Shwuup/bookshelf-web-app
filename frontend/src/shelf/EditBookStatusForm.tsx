@@ -5,6 +5,7 @@ import { postUpdate, putBookStatus } from "../APIEndpoints";
 import ShelfDropdown from "../ShelfDropdown";
 import "./EditBookStatusForm.css";
 import styles from "./EditBookStatusForm.module.css";
+import { Divider } from "semantic-ui-react";
 
 const EditBookStatusForm = (props: any) => {
   const [newBookStatus, setNewBookStatus] = useState({ ...props.bookStatus });
@@ -38,6 +39,7 @@ const EditBookStatusForm = (props: any) => {
           </div>
           <Form>
             <div className={styles.header}>{book.title}</div>
+            <Divider />
             <Form.Field>
               <label>Shelf</label>
               <ShelfDropdown

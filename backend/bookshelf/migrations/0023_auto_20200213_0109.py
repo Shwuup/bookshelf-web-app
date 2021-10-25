@@ -6,20 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookshelf', '0022_delete_booklist'),
+        ("bookshelf", "0022_delete_booklist"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Genre',
+            name="Genre",
             fields=[
-                ('genre_id', models.AutoField(primary_key=True, serialize=False)),
-                ('genre_name', models.CharField(max_length=100)),
+                ("genre_id", models.AutoField(primary_key=True, serialize=False)),
+                ("genre_name", models.CharField(max_length=100)),
             ],
         ),
         migrations.AddField(
-            model_name='book',
-            name='genre',
-            field=models.ManyToManyField(to='bookshelf.Genre'),
+            model_name="book",
+            name="genre",
+            field=models.ManyToManyField(to="bookshelf.Genre"),
         ),
     ]

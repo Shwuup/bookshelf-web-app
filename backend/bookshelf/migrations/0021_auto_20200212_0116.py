@@ -9,18 +9,22 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('bookshelf', '0020_auto_20200208_0144'),
+        ("bookshelf", "0020_auto_20200208_0144"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='bookinfo',
-            name='book_list',
+            model_name="bookinfo",
+            name="book_list",
         ),
         migrations.AddField(
-            model_name='bookinfo',
-            name='user',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="bookinfo",
+            name="user",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
             preserve_default=False,
         ),
     ]

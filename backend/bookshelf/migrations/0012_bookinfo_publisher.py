@@ -7,24 +7,29 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookshelf', '0011_book_edition'),
+        ("bookshelf", "0011_book_edition"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Publisher',
+            name="Publisher",
             fields=[
-                ('publisher_id', models.AutoField(primary_key=True, serialize=False)),
-                ('publisher_name', models.CharField(max_length=100)),
+                ("publisher_id", models.AutoField(primary_key=True, serialize=False)),
+                ("publisher_name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='BookInfo',
+            name="BookInfo",
             fields=[
-                ('book_info_id', models.AutoField(primary_key=True, serialize=False)),
-                ('isRead', models.BooleanField(default=False)),
-                ('dateFinishedReading', models.DateField(blank=True, null=True)),
-                ('book', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bookshelf.Book')),
+                ("book_info_id", models.AutoField(primary_key=True, serialize=False)),
+                ("isRead", models.BooleanField(default=False)),
+                ("dateFinishedReading", models.DateField(blank=True, null=True)),
+                (
+                    "book",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="bookshelf.Book"
+                    ),
+                ),
             ],
         ),
     ]

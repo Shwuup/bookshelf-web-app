@@ -1,7 +1,6 @@
 .container {
   display: flex;
   flex-direction: column;
-  cursor: pointer;
   box-shadow: 5px 5px 8px #888888;
   position: relative;
 }

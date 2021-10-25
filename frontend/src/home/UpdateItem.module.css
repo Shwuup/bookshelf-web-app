@@ -44,7 +44,9 @@
 }
 .time {
   align-self: flex-end;
+  position: absolute;
   margin-right: -20px;
+  margin-top: 180px;
 }
 .dropdown {
   width: 170px;

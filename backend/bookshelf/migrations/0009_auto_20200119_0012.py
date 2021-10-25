@@ -10,7 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(name="BookList",),
+        migrations.DeleteModel(
+            name="BookList",
+        ),
         migrations.AddField(
             model_name="book",
             name="book_id",
@@ -18,6 +20,8 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name="book", name="isbn", field=models.CharField(max_length=200),
+            model_name="book",
+            name="isbn",
+            field=models.CharField(max_length=200),
         ),
     ]

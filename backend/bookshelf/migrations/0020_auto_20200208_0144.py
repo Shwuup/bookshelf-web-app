@@ -7,17 +7,21 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookshelf', '0019_auto_20200206_1003'),
+        ("bookshelf", "0019_auto_20200206_1003"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='booklist',
-            name='books',
+            model_name="booklist",
+            name="books",
         ),
         migrations.AlterField(
-            model_name='bookinfo',
-            name='book_list',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='book_infos', to='bookshelf.BookList'),
+            model_name="bookinfo",
+            name="book_list",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="book_infos",
+                to="bookshelf.BookList",
+            ),
         ),
     ]
